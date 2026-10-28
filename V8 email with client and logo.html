@@ -1,0 +1,3392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IELTS Speaking Examiner Station</title>
+  <style>
+    :root {
+      --ielts-red: #d32f2f;
+      --ielts-dark: #1a1a1a;
+      --ielts-gray: #f4f6f8;
+      --ielts-border: #dcdcdc;
+      --prep-purple: #b39ddb;
+      --prep-purple-bg: #ede7f6;
+      --speak-blue: #81d4fa;
+      --speak-blue-bg: #e1f5fe;
+      --test-font-scale: .9;
+
+      /* FLOATING ZOOM CONTROLLER X / Y POSITION */
+      --zoom-fab-bottom: 22px;
+      --zoom-fab-left: 675px;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background-color: var(--ielts-gray);
+      color: #333;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+    header {
+      background: #fff;
+      border-bottom: 2px solid var(--ielts-red);
+      padding: 8px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 50px;
+      flex-shrink: 0;
+    }
+    .brand {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--ielts-dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-tag {
+      background: var(--ielts-red);
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 0.8rem;
+    }
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-user-tag {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #555;
+      background: #eee;
+      padding: 4px 10px;
+      border-radius: 4px;
+    }
+    nav button {
+      background: none;
+      border: 1px solid #ccc;
+      padding: 6px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    nav button:hover {
+      background: #eee;
+    }
+    .view {
+      display: none;
+      height: calc(100vh - 50px);
+    }
+    .view.active {
+      display: flex;
+    }
+    /* AUTH VIEW */
+    #view-auth {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #eef2f5;
+      overflow-y: auto;
+      padding: 20px;
+    }
+    .auth-card {
+      background: #fff;
+      border: 1px solid var(--ielts-border);
+      border-top: 5px solid var(--ielts-red);
+      border-radius: 8px;
+      padding: 30px 36px 20px 36px;
+      width: 440px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .auth-card h2 {
+      font-size: 1.35rem;
+      color: var(--ielts-dark);
+      text-align: center;
+    }
+    .auth-card p {
+      font-size: 0.85rem;
+      color: #666;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .field-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #444;
+    }
+    .password-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      margin-top: 4px;
+    }
+    .password-input-wrap input {
+      padding-right: 38px !important;
+    }
+    .btn-toggle-eye {
+      position: absolute;
+      right: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+      border-radius: 4px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .btn-toggle-eye:hover {
+      color: var(--ielts-red);
+      background: rgba(0, 0, 0, 0.05);
+    }
+    .btn-toggle-eye svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+    .path-buttons-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 2px;
+    }
+    .btn-copy-path {
+      flex: 1;
+      background: #f8fafc;
+      border: 1px dashed #94a3b8;
+      color: #334155;
+      padding: 7px 8px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease-in-out;
+      white-space: nowrap;
+    }
+    .btn-copy-path:hover {
+      background: #e2e8f0;
+      border-color: #64748b;
+      color: #0f172a;
+    }
+    .btn-copy-path.copied {
+      background: #e8f5e9;
+      border-color: #4caf50;
+      color: #2e7d32;
+    }
+
+    /* AUTH FOOTER META & LEGAL LINKS */
+    .auth-footer {
+      border-top: 1px solid #f1f5f9;
+      margin-top: 6px;
+      padding-top: 10px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .auth-footer-dev {
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: #475569;
+    }
+    .auth-footer-dev strong {
+      color: #0f172a;
+    }
+    .auth-footer-version {
+      font-size: 0.68rem;
+      color: #94a3b8;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .auth-footer-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: 2px;
+    }
+    .auth-footer-link {
+      background: none;
+      border: none;
+      font-size: 0.68rem;
+      color: #64748b;
+      text-decoration: underline;
+      cursor: pointer;
+      font-weight: 500;
+      padding: 0;
+    }
+    .auth-footer-link:hover {
+      color: var(--ielts-red);
+    }
+    .auth-footer-divider {
+      font-size: 0.68rem;
+      color: #cbd5e1;
+    }
+
+    /* Home View */
+    #view-home {
+      flex-direction: column;
+      padding: 24px 30px;
+      overflow-y: auto;
+      gap: 20px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1.35fr;
+      gap: 20px;
+      height: calc(100vh - 100px);
+    }
+    .card {
+      background: #fff;
+      border-radius: 6px;
+      border: 1px solid var(--ielts-border);
+      padding: 18px 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .card-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .card-header-row h2 {
+      margin-bottom: 0;
+      border-bottom: none;
+      padding-bottom: 0;
+      font-size: 1.15rem;
+      color: var(--ielts-dark);
+    }
+    .stats-badges-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .stat-badge {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 3px 7px;
+      font-size: 0.74rem;
+      color: #475569;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+    .stat-badge strong {
+      color: var(--ielts-red);
+      font-size: 0.85rem;
+    }
+    .test-scroll-area {
+      overflow-y: auto;
+      flex: 1;
+      padding-right: 4px;
+    }
+    .test-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      background: #fff;
+      border: 1px solid var(--ielts-border);
+      border-left: 4px solid var(--ielts-red);
+      border-radius: 4px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+    .test-btn:hover {
+      background: #fdf2f2;
+      border-color: var(--ielts-red);
+      color: var(--ielts-red);
+      transform: translateX(2px);
+    }
+    .table-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .search-input {
+      flex: 1;
+      padding: 7px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      outline: none;
+    }
+    .search-input:focus {
+      border-color: var(--ielts-red);
+    }
+    .table-scroll-area {
+      overflow-y: auto;
+      flex: 1;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.83rem;
+    }
+    th, td {
+      border: 1px solid #eee;
+      padding: 6px 7px;
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      background: #fafafa;
+      font-weight: 600;
+    }
+    
+    /* ENFORCE UNIFORM 3-LINE MINIMUM ROW HEIGHT */
+    tbody tr.log-row {
+      cursor: pointer;
+      transition: background 0.15s ease-in-out;
+    }
+    tbody tr.log-row:hover {
+      background-color: #fbfbfb;
+    }
+    tbody tr.log-row td {
+      height: 58px;
+      min-height: 58px;
+      line-height: 1.35;
+    }
+    
+    /* TWO-ROW ACTION BUTTONS CELL */
+    .actions-cell {
+      white-space: nowrap !important;
+      text-align: center;
+      width: 145px;
+      padding: 4px 6px !important;
+    }
+    .action-button-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      width: 100%;
+    }
+    .action-sub-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 2px;
+      width: 100%;
+    }
+    .action-btn {
+      border: none;
+      padding: 4px 2px;
+      border-radius: 3px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      line-height: 1.15;
+      width: 100%;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-edit {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+    .btn-edit:hover {
+      background: #bbdefb;
+    }
+    .btn-del {
+      background: #ffebee;
+      color: #c62828;
+    }
+    .btn-del:hover {
+      background: #ffcdd2;
+    }
+    .btn-pdf {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+    .btn-pdf:hover {
+      background: #c8e6c9;
+    }
+
+    /* TOP-ROW EMAIL STATUS BUTTON STATES */
+    .btn-email-status {
+      width: 100%;
+      padding: 4px 0;
+      border-radius: 3px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      text-align: center;
+      line-height: 1.15;
+      transition: all 0.15s ease-in-out;
+    }
+    .btn-email-status.state-unsent {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+    .btn-email-status.state-unsent:hover {
+      background: #dbeafe;
+    }
+    .btn-email-status.state-sent {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+      cursor: default;
+    }
+    .btn-email-status.state-resend {
+      background: #fffbeb;
+      color: #b45309;
+      border: 1px solid #fde68a;
+    }
+    .btn-email-status.state-resend:hover {
+      background: #fef3c7;
+    }
+    .btn-email-status.state-sending {
+      background: #f1f5f9;
+      color: #64748b;
+      border: 1px solid #cbd5e1;
+      cursor: not-allowed;
+    }
+
+    /* Test View (65% Left, 35% Right) */
+    #view-test {
+      width: 100%;
+      position: relative;
+    }
+    .left-col {
+      width: 65%;
+      background: #fff;
+      border-right: 2px solid var(--ielts-border);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+    .left-col-dock {
+      flex-shrink: 0;
+      background: #f8fafc;
+      border-bottom: 2px solid var(--ielts-border);
+      padding: 6px 12px;
+      display: grid;
+      grid-template-columns: 3fr 3fr 4fr;
+      gap: 10px;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+      z-index: 10;
+      width: 100%;
+    }
+    .dock-timer-overall {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 3px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 5px;
+      padding: 4px 8px;
+      height: 62px;
+      width: 100%;
+    }
+    .dock-timer-prep {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 3px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 5px;
+      padding: 4px 8px;
+      height: 62px;
+      width: 100%;
+    }
+
+    /* CANDIDATE INFO BOX (TWO COMPACT ROWS) */
+    .dock-candidate-box {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 5px;
+      padding: 4px 8px;
+      height: 62px;
+      width: 100%;
+    }
+    .dock-sub-row {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      width: 100%;
+    }
+    .dock-input {
+      width: 100%;
+      padding: 3px 6px;
+      border: 1px solid #cbd5e1;
+      border-radius: 3px;
+      font-size: 0.74rem;
+      background: #fff;
+      outline: none;
+    }
+    .dock-input:focus {
+      border-color: var(--ielts-red);
+    }
+    .dock-select-band {
+      width: 90px;
+      flex-shrink: 0;
+      padding: 3px 4px;
+      border: 1px solid #cbd5e1;
+      border-radius: 3px;
+      font-size: 0.74rem;
+      background: #fff;
+      outline: none;
+      cursor: pointer;
+    }
+    .dock-select-band:focus {
+      border-color: var(--ielts-red);
+    }
+
+    /* Floating Pill Zoom Controller */
+    .floating-zoom-fab {
+      position: fixed;
+      bottom: var(--zoom-fab-bottom);
+      left: var(--zoom-fab-left);
+      display: inline-flex;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 9999px;
+      padding: 3px 6px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14), 0 1px 3px rgba(0, 0, 0, 0.08);
+      z-index: 900;
+      user-select: none;
+      backdrop-filter: blur(8px);
+      transition: box-shadow 0.2s ease, transform 0.15s ease;
+    }
+    .floating-zoom-fab:hover {
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+      transform: translateY(-1px);
+    }
+    .zoom-fab-btn {
+      background: none;
+      border: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+      line-height: 1;
+      transition: background-color 0.15s, color 0.15s;
+    }
+    .zoom-fab-btn:hover {
+      background-color: #f1f5f9;
+      color: var(--ielts-red);
+    }
+    .zoom-fab-btn:active {
+      background-color: #e2e8f0;
+    }
+    .zoom-fab-text {
+      padding: 0 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #1e293b;
+      cursor: pointer;
+      min-width: 44px;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+      transition: color 0.15s;
+    }
+    .zoom-fab-text:hover {
+      color: var(--ielts-red);
+    }
+    .digital-watch {
+      text-align: center;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 1.35rem;
+      font-weight: 700;
+      background: #111;
+      color: #ffffff;
+      border-radius: 4px;
+      padding: 2px 6px;
+      letter-spacing: 1.5px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+      white-space: nowrap;
+      line-height: 1.15;
+    }
+    .btn-group {
+      display: flex;
+      gap: 3px;
+    }
+    .btn-group button {
+      flex: 1;
+      padding: 4px 0;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #334155;
+      transition: background 0.15s;
+    }
+    .btn-group button:hover {
+      background: #f1f5f9;
+    }
+    .bar-container {
+      width: 100%;
+      height: 26px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #cbd5e1;
+    }
+    .bar-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0%;
+      transition: width 0.05s linear;
+    }
+    .bar-text {
+      position: relative;
+      z-index: 2;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #1e293b;
+      font-family: 'Courier New', Courier, monospace;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+    .test-scroll-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 36px 70px 48px;
+    }
+    /* Right Column (Notes & Snippets) */
+    .right-col {
+      width: 35%;
+      display: flex;
+      flex-direction: column;
+      background: #fafafa;
+      height: 100%;
+      overflow: hidden;
+      padding: 8px 10px;
+      gap: 6px;
+    }
+    .editor-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      background: #fff;
+      padding: 3px 5px;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+    .tool-btn {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 3px;
+      padding: 2px 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: #334155;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 24px;
+      height: 24px;
+    }
+    .tool-btn:hover {
+      background: #e2e8f0;
+    }
+    .tool-select {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 3px;
+      padding: 1px 3px;
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+      height: 24px;
+    }
+    .tool-divider {
+      width: 1px;
+      height: 16px;
+      background: #e2e8f0;
+      margin: 0 1px;
+    }
+    .ruled-paper {
+      flex: 1 1 0;
+      min-height: 0;
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 1rem;
+      line-height: 28px;
+      color: #2b2b2b;
+      background-color: #fff;
+      background-image: linear-gradient(#e1e8ed 1px, transparent 1px);
+      background-size: 100% 28px;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      outline: none;
+      overflow-y: auto;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+      word-break: break-word;
+    }
+    .ruled-paper:focus {
+      border-color: #94a3b8;
+    }
+    .ruled-paper:empty:before {
+      content: attr(data-placeholder);
+      color: #94a3b8;
+      pointer-events: none;
+    }
+    .ruled-paper.viewing-history {
+      background-color: #fffcf0;
+      border-color: #f59e0b;
+    }
+    .quick-responses-container {
+      flex: 1 1 0;
+      min-height: 0;
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      border-radius: 5px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow-y: auto;
+    }
+    .qr-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+    .qr-pills-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .qr-pill {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      color: #334155;
+      cursor: pointer;
+      font-weight: 500;
+      line-height: 1.25;
+      user-select: none;
+      transition: all 0.15s ease-in-out;
+      text-align: left;
+    }
+    .qr-pill:hover {
+      background: #fee2e2;
+      border-color: var(--ielts-red);
+      color: var(--ielts-red);
+      transform: translateY(-1px);
+    }
+    .qr-pill.btn-blank-bullet {
+      background: #eef2ff;
+      border-color: #a5b4fc;
+      color: #3730a3;
+      font-weight: 700;
+    }
+    .qr-pill.btn-blank-bullet:hover {
+      background: #e0e7ff;
+      border-color: #6366f1;
+      color: #1e1b4b;
+    }
+    .notes-history-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      border-radius: 5px;
+      padding: 3px 6px;
+      flex-shrink: 0;
+    }
+    .history-nav-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #111;
+      border-radius: 50%;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+    .history-nav-btn:hover:not(:disabled) {
+      transform: scale(1.08);
+      color: var(--ielts-red);
+    }
+    .history-nav-btn:disabled {
+      opacity: 0.2;
+      cursor: not-allowed;
+    }
+    .history-nav-btn svg {
+      width: 22px;
+      height: 22px;
+    }
+    .history-info-label {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: #475569;
+      text-align: center;
+      line-height: 1.2;
+      user-select: none;
+    }
+    .btn-save {
+      background: var(--ielts-red);
+      color: white;
+      border: none;
+      padding: 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.88rem;
+      flex-shrink: 0;
+    }
+    .btn-save:hover {
+      background: #b71c1c;
+    }
+    /* Scalable Typography */
+    .test-main-title {
+      font-size: calc(1.75rem * var(--test-font-scale));
+      margin-bottom: calc(20px * var(--test-font-scale));
+      font-weight: 700;
+      color: var(--ielts-dark);
+      line-height: 1.25;
+    }
+    .script-part {
+      margin-bottom: calc(28px * var(--test-font-scale));
+    }
+    .script-part h3 {
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 6px;
+      margin-bottom: calc(14px * var(--test-font-scale));
+      color: var(--ielts-red);
+      font-size: calc(1.35rem * var(--test-font-scale));
+      line-height: 1.3;
+    }
+    .sub-section-title {
+      font-size: calc(1.18rem * var(--test-font-scale));
+      font-weight: 700;
+      color: #333;
+      margin: calc(12px * var(--test-font-scale)) 0 calc(6px * var(--test-font-scale)) 0;
+    }
+    .examiner-say {
+      font-weight: 600;
+      color: #1a1a1a;
+      font-size: calc(1.22rem * var(--test-font-scale));
+      margin-bottom: calc(8px * var(--test-font-scale));
+      line-height: 1.5;
+    }
+    .bullet-list {
+      margin-left: calc(28px * var(--test-font-scale));
+      margin-bottom: calc(14px * var(--test-font-scale));
+      font-size: calc(1.22rem * var(--test-font-scale));
+      line-height: 1.58;
+    }
+    .bullet-list li {
+      margin-bottom: calc(6px * var(--test-font-scale));
+    }
+    .cue-card {
+      border: 2px solid #bbb;
+      padding: calc(16px * var(--test-font-scale));
+      background: #fafafa;
+      border-radius: 6px;
+      margin: calc(14px * var(--test-font-scale)) 0;
+      font-size: calc(1.22rem * var(--test-font-scale));
+      line-height: 1.55;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease-in-out;
+    }
+    .cue-card:hover {
+      border-color: var(--ielts-red);
+      background: #fff8f8;
+      box-shadow: 0 4px 14px rgba(211, 47, 47, 0.15);
+    }
+    .cue-card-badge {
+      display: inline-block;
+      font-size: calc(0.78rem * var(--test-font-scale));
+      font-weight: 700;
+      color: #fff;
+      background: var(--ielts-red);
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-bottom: calc(10px * var(--test-font-scale));
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .instruction-note {
+      font-size: calc(1.08rem * var(--test-font-scale));
+      color: #666;
+      margin-top: calc(4px * var(--test-font-scale));
+      margin-bottom: calc(10px * var(--test-font-scale));
+    }
+    .stream-box {
+      border-left: 3px solid #1976d2;
+      background: #f8fbff;
+      padding: calc(10px * var(--test-font-scale)) calc(14px * var(--test-font-scale));
+      margin: calc(12px * var(--test-font-scale)) 0;
+      border-radius: 0 4px 4px 0;
+    }
+    /* Candidate Overlay */
+    #candidate-mode-overlay {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #f4f6f8;
+      z-index: 100;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    #candidate-mode-overlay.active {
+      display: flex;
+    }
+    .candidate-card-box {
+      background: #fff;
+      border: 3px solid #333;
+      border-radius: 8px;
+      width: 840px;
+      max-width: 95%;
+      padding: 40px 50px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+      font-size: 1.65rem;
+      line-height: 1.7;
+      color: #111;
+      position: relative;
+    }
+    .candidate-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid var(--ielts-red);
+      padding-bottom: 12px;
+      margin-bottom: 24px;
+    }
+    .candidate-card-header h2 {
+      font-size: 1.8rem;
+      color: var(--ielts-dark);
+      font-weight: 800;
+    }
+    .candidate-header-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .btn-candidate-prep {
+      background: var(--prep-purple);
+      color: #1a1a1a;
+      border: 1px solid #9575cd;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    .btn-candidate-prep.running {
+      background: #e53935;
+      color: #fff;
+      border-color: #b71c1c;
+    }
+    .btn-exit-candidate {
+      background: #222;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s;
+    }
+    .btn-exit-candidate:hover {
+      background: var(--ielts-red);
+    }
+    /* Modals */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal {
+      background: #fff;
+      padding: 24px;
+      border-radius: 6px;
+      width: 580px;
+      max-width: 95vw;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+      overflow-y: auto;
+    }
+    .detail-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #777;
+      text-transform: uppercase;
+    }
+    .detail-val {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #222;
+      margin-bottom: 6px;
+    }
+    .notes-viewer {
+      padding: 12px 14px;
+      min-height: 140px;
+      max-height: 260px;
+      overflow-y: auto;
+      font-size: 1.05rem;
+      line-height: 30px;
+      color: #2b2b2b;
+      background-color: #fafafa;
+      background-image: linear-gradient(#e1e8ed 1px, transparent 1px);
+      background-size: 100% 30px;
+      border: 1px solid #dcdcdc;
+      border-radius: 4px;
+      word-break: break-word;
+    }
+    .modal-field {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      background: #fff;
+    }
+    
+    /* EXPANDED EDIT NOTES CANVAS */
+    #edit-candidate-notes {
+      min-height: 200px;
+      height: 240px;
+      resize: vertical;
+    }
+  </style>
+</head>
+<body>
+  <!-- AUTH / PROFILE LOGIN SCREEN -->
+  <div id="view-auth" class="view active">
+    <div class="auth-card">
+      <div style="text-align: center;">
+        <span class="brand-tag" style="font-size: 0.9rem; padding: 3px 8px;">IELTS</span>
+        <h2 style="margin-top: 8px;">Examiner Profile</h2>
+        <p>Select your profile and authenticate to access exam workstation</p>
+      </div>
+
+      <div>
+        <label class="field-label">Select Examiner:</label>
+        <select id="auth-user-select" class="modal-field" style="margin-top: 4px;" onchange="onUserSelectChange()"></select>
+      </div>
+
+      <div>
+        <label class="field-label">Password:</label>
+        <div class="password-input-wrap">
+          <input
+            type="password"
+            id="auth-password"
+            class="modal-field"
+            placeholder="Enter profile password"
+            onkeydown="if(event.key==='Enter') loginUser()"
+          />
+          <button
+            type="button"
+            class="btn-toggle-eye"
+            onclick="togglePasswordVisibility('auth-password', this)"
+            title="Show / Hide Password"
+          >
+            <svg viewBox="0 0 24 24">
+              <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.44-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <button class="btn-save" style="margin-top: 4px;" onclick="loginUser()">Unlock Workstation</button>
+
+      <div class="path-buttons-row">
+        <button
+          type="button"
+          class="btn-copy-path"
+          id="btn-copy-mac"
+          onclick="copyFolderPath('mac')"
+          title="Copies the macOS terminal command to open Local Storage folder"
+        >
+          <svg style="width:14px; height:14px; fill:currentColor;" viewBox="0 0 24 24">
+            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+          </svg>
+          <span id="btn-copy-mac-label">📋 Copy Path: macOS</span>
+        </button>
+
+        <button
+          type="button"
+          class="btn-copy-path"
+          id="btn-copy-win"
+          onclick="copyFolderPath('win')"
+          title="Copies the Windows run command to open Local Storage folder"
+        >
+          <svg style="width:14px; height:14px; fill:currentColor;" viewBox="0 0 24 24">
+            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+          </svg>
+          <span id="btn-copy-win-label">📋 Copy Path: Windows</span>
+        </button>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; border-top: 1px solid #eee; padding-top: 10px; margin-top: 2px;">
+        <button onclick="openCreateUserModal()" style="background: none; border: none; color: #1565c0; font-weight: 700; cursor: pointer; font-size: 0.82rem;">+ Create New Profile</button>
+        <button onclick="openDeleteUserModal()" style="background: none; border: none; color: #c62828; font-weight: 700; cursor: pointer; font-size: 0.82rem;">Delete a Profile</button>
+      </div>
+
+      <!-- FOOTER: DEVELOPER, VERSION & LEGAL INFO -->
+      <div class="auth-footer">
+        <div class="auth-footer-dev">
+          Developed by <strong>MD Sezadur Rahman</strong>
+        </div>
+        <div class="auth-footer-version">
+          Version 6.0.2
+        </div>
+        <div class="auth-footer-links">
+          <button type="button" class="auth-footer-link" onclick="openLegalModal('privacy')">Privacy Policy</button>
+          <span class="auth-footer-divider">•</span>
+          <button type="button" class="auth-footer-link" onclick="openLegalModal('terms')">Terms & Conditions</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP INTERFACE -->
+  <header id="main-header" style="display: none;">
+    <div class="brand">
+      <span class="brand-tag">IELTS</span> Speaking Examiner Workstation
+    </div>
+    <nav>
+      <span class="nav-user-tag" id="current-user-tag">Examiner</span>
+      <button onclick="navigate('home')">🏠 Dashboard & Logs</button>
+      <button onclick="logoutUser()" style="color: #c62828; border-color: #ffcdd2;">🔒 Sign Out</button>
+    </nav>
+  </header>
+
+  <!-- HOME VIEW -->
+  <div id="view-home" class="view">
+    <div class="grid-2">
+      <div class="card">
+        <h2>Available Mock Tests</h2>
+        <div class="test-scroll-area" id="test-list"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-row">
+          <h2>Completed Assessments Log</h2>
+          <div class="stats-badges-wrap">
+            <span class="stat-badge">Total Tests: <strong id="stat-total-tests">0</strong></span>
+            <span class="stat-badge">Daily Avg: <strong id="stat-daily-avg">0.0</strong></span>
+            <span class="stat-badge">Mean Band: <strong id="stat-mean-score">-</strong></span>
+            <span class="stat-badge">Median Band: <strong id="stat-median-score">-</strong></span>
+          </div>
+        </div>
+        <p style="font-size: 0.8rem; color: #777; margin-bottom: 6px;">Click any row to open full candidate assessment details, notes, and report.</p>
+        <div class="table-controls">
+          <input
+            type="text"
+            id="log-search-input"
+            class="search-input"
+            placeholder="🔍 Search logs by candidate name..."
+            oninput="filterLogs()"
+            autocomplete="off"
+          />
+        </div>
+        <div class="table-scroll-area">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 100px;">Date</th>
+                <th style="width: 130px;">Candidate</th>
+                <th style="width: 175px;">Test</th>
+                <th style="width: 45px; text-align: center;">Band</th>
+                <th style="width: 145px; text-align: center;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="log-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEST VIEW (65% Left, 35% Right) -->
+  <div id="view-test" class="view">
+    <div class="left-col">
+      <div class="left-col-dock">
+        <!-- 1. Overall Stopwatch Box (Left, 30%) -->
+        <div class="dock-timer-overall">
+          <div class="digital-watch" id="stopwatch-display">00:00.00</div>
+          <div class="btn-group">
+            <button onclick="startStopwatch()">Start</button>
+            <button onclick="pauseStopwatch()">Pause</button>
+            <button onclick="resetStopwatch()">Reset</button>
+          </div>
+        </div>
+
+        <!-- 2. Part 2 Countdown Bar Box (Middle, 30%) -->
+        <div class="dock-timer-prep">
+          <div class="bar-container" id="cue-bar-container">
+            <div class="bar-fill" id="cue-bar-fill"></div>
+            <div class="bar-text" id="cue-bar-text">STANDBY</div>
+          </div>
+          <div class="btn-group">
+            <button style="background: var(--prep-purple-bg);" onclick="startCountdown(60000, 'prep')">1m Prep</button>
+            <button style="background: var(--speak-blue-bg);" onclick="startCountdown(120000, 'speak')">2m Speak</button>
+            <button style="flex: 0.55; color: #64748b;" onclick="resetBar()">✕</button>
+          </div>
+        </div>
+
+        <!-- 3. Candidate Info Box (Right, 40%): Row 1 Name, Row 2 Email + Band -->
+        <div class="dock-candidate-box">
+          <input
+            type="text"
+            id="candidate-name"
+            class="dock-input"
+            list="candidate-suggestions"
+            placeholder="Candidate Name / ID..."
+            autocomplete="off"
+            oninput="onCandidateNameChange()"
+          />
+          <datalist id="candidate-suggestions"></datalist>
+
+          <div class="dock-sub-row">
+            <input
+              type="email"
+              id="candidate-email"
+              class="dock-input"
+              placeholder="Candidate Email..."
+              autocomplete="off"
+            />
+            <select id="candidate-score" class="dock-select-band">
+              <option value="">Band</option>
+              <option value="9.0">9.0</option>
+              <option value="8.5">8.5</option>
+              <option value="8.0">8.0</option>
+              <option value="7.5">7.5</option>
+              <option value="7.0">7.0</option>
+              <option value="6.5">6.5</option>
+              <option value="6.0">6.0</option>
+              <option value="5.5">5.5</option>
+              <option value="5.0">5.0</option>
+              <option value="4.5">4.5</option>
+              <option value="<4.0">&lt; 4.0</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCROLLABLE SCRIPT CONTENT -->
+      <div class="test-scroll-content" id="test-content-area"></div>
+
+      <!-- FLOATING PILL ZOOM CONTROLLER AT BOTTOM-LEFT -->
+      <div class="floating-zoom-fab" title="Adjust text zoom (Click % to reset)">
+        <button type="button" class="zoom-fab-btn" onclick="adjustTextZoom(-0.1)" title="Zoom Out">-</button>
+        <span class="zoom-fab-text" id="zoom-level-text" onclick="adjustTextZoom(0)" title="Click to reset to 100%">100%</span>
+        <button type="button" class="zoom-fab-btn" onclick="adjustTextZoom(0.1)" title="Zoom In">+</button>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: EXPANDED 50/50 RUNNING NOTES & SNIPPETS -->
+    <div class="right-col">
+      <div class="editor-toolbar">
+        <select class="tool-select" onchange="formatNote('fontSize', this.value); this.selectedIndex=0;">
+          <option value="" disabled selected>Size</option>
+          <option value="2">Small</option>
+          <option value="3">Medium</option>
+          <option value="5">Large</option>
+        </select>
+        <select class="tool-select" onchange="formatNote('foreColor', this.value); this.selectedIndex=0;">
+          <option value="" disabled selected>Color</option>
+          <option value="#111111" style="color: black;">● Black</option>
+          <option value="#d32f2f" style="color: #d32f2f;">● Red</option>
+          <option value="#2e7d32" style="color: #2e7d32;">● Green</option>
+          <option value="#1565c0" style="color: #1565c0;">● Blue</option>
+        </select>
+        <div class="tool-divider"></div>
+        <button type="button" class="tool-btn" onclick="formatNote('bold')" title="Bold (Ctrl+B)"><b>B</b></button>
+        <button type="button" class="tool-btn" onclick="formatNote('italic')" title="Italic (Ctrl+I)"><i>I</i></button>
+        <button type="button" class="tool-btn" onclick="formatNote('underline')" title="Underline (Ctrl+U)"><u>U</u></button>
+      </div>
+
+      <!-- 50% HEIGHT: CANDIDATE RUNNING NOTES PAD -->
+      <div id="candidate-notes" class="ruled-paper" contenteditable="true" data-placeholder="Examiner Running Notes (Click snippets below or type custom feedback)..."></div>
+
+      <!-- 50% HEIGHT: QUICK-INSERT SNIPPETS BANK -->
+      <div class="quick-responses-container">
+        <div class="qr-header-row">
+          <span>⚡ Quick-Insert Notes</span>
+          <span style="font-size:0.65rem; color:#94a3b8; font-weight:normal;">Adds as new bullet</span>
+        </div>
+        <div class="qr-pills-wrap" id="quick-snippets-list"></div>
+      </div>
+
+      <!-- History navigation bar -->
+      <div class="notes-history-bar" id="notes-history-bar" style="display: none;">
+        <button type="button" class="history-nav-btn" id="btn-hist-left" onclick="navigateNoteHistory(-1)" title="Newer Test / Active Notes">
+          <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" stroke-width="8"/>
+            <path d="M57 32 L39 50 L57 68" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="history-info-label" id="history-info-label">Active Exam Notes</div>
+        <button type="button" class="history-nav-btn" id="btn-hist-right" onclick="navigateNoteHistory(1)" title="Previous Older Tests">
+          <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" stroke-width="8"/>
+            <path d="M43 32 L61 50 L43 68" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <button class="btn-save" onclick="saveAssessment()">Save & Finish Test</button>
+    </div>
+
+    <!-- Candidate Cue Card Mode Overlay -->
+    <div id="candidate-mode-overlay">
+      <div class="candidate-card-box">
+        <div class="candidate-card-header">
+          <h2>Candidate Task Card</h2>
+          <div class="candidate-header-actions">
+            <button id="btn-candidate-prep" class="btn-candidate-prep" onclick="toggleCandidatePrep()">
+              ▶ Start Prep
+            </button>
+            <button class="btn-exit-candidate" onclick="exitCandidateMode()">✕ Return to Examiner View</button>
+          </div>
+        </div>
+        <div id="candidate-card-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div class="modal-overlay" id="detail-modal">
+    <div class="modal">
+      <h3 style="font-size: 1.15rem; border-bottom: 2px solid var(--ielts-red); padding-bottom: 6px; color: var(--ielts-dark);">
+        Assessment Record
+      </h3>
+      <div>
+        <span class="detail-label">Candidate Name</span>
+        <div class="detail-val" id="det-candidate"></div>
+
+        <span class="detail-label">Candidate Email</span>
+        <div class="detail-val" id="det-email" style="font-size: 0.95rem; font-weight: 500; color: #1565c0;"></div>
+
+        <div style="display: flex; gap: 20px;">
+          <div style="flex: 1;">
+            <span class="detail-label">Band Score</span>
+            <div class="detail-val" id="det-band" style="color: var(--ielts-red); font-size: 1.25rem;"></div>
+          </div>
+          <div style="flex: 1;">
+            <span class="detail-label">Test Date</span>
+            <div class="detail-val" id="det-date" style="font-size: 0.95rem; font-weight: 600; color: #444;"></div>
+          </div>
+        </div>
+
+        <span class="detail-label">Test Taken</span>
+        <div class="detail-val" id="det-test" style="font-size: 0.95rem; font-weight: 500;"></div>
+
+        <span class="detail-label">Examiner Notes</span>
+        <div class="notes-viewer" id="det-notes"></div>
+      </div>
+      <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; flex-wrap: wrap;">
+        <button id="det-email-btn" class="action-btn btn-email" style="padding: 7px 14px; font-size: 0.85rem; width:auto;">✉️ Send Email</button>
+        <button id="det-pdf-btn" class="action-btn btn-pdf" style="padding: 7px 14px; font-size: 0.85rem; width:auto;">📄 Print / PDF Report</button>
+        <button id="det-edit-btn" class="action-btn btn-edit" style="padding: 7px 14px; font-size: 0.85rem; width:auto;">Edit Log</button>
+        <button onclick="closeDetailModal()" class="action-btn" style="background: #eee; padding: 7px 14px; font-size: 0.85rem; width:auto;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal (SCROLLABLE CONTAINER WITH EXPANDED NOTES PAD) -->
+  <div class="modal-overlay" id="edit-modal">
+    <div class="modal">
+      <h3 style="font-size: 1.15rem; border-bottom: 2px solid var(--ielts-red); padding-bottom: 6px; color: var(--ielts-dark);">Edit Assessment Record</h3>
+      <input type="hidden" id="edit-index" />
+      
+      <div>
+        <label class="field-label">Candidate Name:</label>
+        <input type="text" id="edit-candidate-name" class="modal-field" list="candidate-suggestions" style="margin-top: 3px;" />
+      </div>
+
+      <div>
+        <label class="field-label">Candidate Email:</label>
+        <input type="email" id="edit-candidate-email" class="modal-field" placeholder="candidate@example.com" style="margin-top: 3px;" />
+      </div>
+
+      <div>
+        <label class="field-label">Band Score:</label>
+        <select id="edit-candidate-score" class="modal-field" style="margin-top: 3px;">
+          <option value="N/A">N/A</option>
+          <option value="9.0">Band 9.0</option>
+          <option value="8.5">Band 8.5</option>
+          <option value="8.0">Band 8.0</option>
+          <option value="7.5">Band 7.5</option>
+          <option value="7.0">Band 7.0</option>
+          <option value="6.5">Band 6.5</option>
+          <option value="6.0">Band 6.0</option>
+          <option value="5.5">Band 5.5</option>
+          <option value="5.0">Band 5.0</option>
+          <option value="4.5">Band 4.5</option>
+          <option value="<4.0">&lt; Band 4.0</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="field-label">Feedback / Notes:</label>
+        <div class="editor-toolbar" style="margin-top: 4px; margin-bottom: 4px;">
+          <select class="tool-select" onchange="formatEditNote('fontSize', this.value); this.selectedIndex=0;">
+            <option value="" disabled selected>Size</option>
+            <option value="2">Small</option>
+            <option value="3">Medium</option>
+            <option value="5">Large</option>
+          </select>
+          <select class="tool-select" onchange="formatEditNote('foreColor', this.value); this.selectedIndex=0;">
+            <option value="" disabled selected>Color</option>
+            <option value="#111111" style="color: black;">● Black</option>
+            <option value="#d32f2f" style="color: #d32f2f;">● Red</option>
+            <option value="#2e7d32" style="color: #2e7d32;">● Green</option>
+            <option value="#1565c0" style="color: #1565c0;">● Blue</option>
+          </select>
+          <div class="tool-divider"></div>
+          <button type="button" class="tool-btn" onclick="formatEditNote('bold')"><b>B</b></button>
+          <button type="button" class="tool-btn" onclick="formatEditNote('italic')"><i>I</i></button>
+          <button type="button" class="tool-btn" onclick="formatEditNote('underline')"><u>U</u></button>
+        </div>
+        <div id="edit-candidate-notes" class="ruled-paper" contenteditable="true"></div>
+      </div>
+
+      <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px;">
+        <button onclick="closeEditModal()" class="action-btn" style="background: #eee; padding: 7px 16px; width:auto; font-size: 0.85rem;">Cancel</button>
+        <button onclick="saveEditLog()" class="action-btn btn-save" style="padding: 7px 18px; width:auto; font-size: 0.85rem;">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create User Modal -->
+  <div class="modal-overlay" id="create-user-modal">
+    <div class="modal" style="width: 420px;">
+      <h3 style="font-size: 1.15rem; border-bottom: 2px solid var(--ielts-red); padding-bottom: 6px;">Create Examiner Profile</h3>
+      <label class="field-label">Examiner Full Name:</label>
+      <input type="text" id="new-user-name" class="modal-field" placeholder="e.g. Sarah Jenkins" />
+
+      <label class="field-label">Password:</label>
+      <div class="password-input-wrap">
+        <input type="password" id="new-user-pass1" class="modal-field" placeholder="Enter password" />
+        <button type="button" class="btn-toggle-eye" onclick="togglePasswordVisibility('new-user-pass1', this)" title="Show / Hide Password">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.44-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
+          </svg>
+        </button>
+      </div>
+
+      <label class="field-label">Confirm Password:</label>
+      <div class="password-input-wrap">
+        <input type="password" id="new-user-pass2" class="modal-field" placeholder="Re-enter password to confirm" />
+        <button type="button" class="btn-toggle-eye" onclick="togglePasswordVisibility('new-user-pass2', this)" title="Show / Hide Password">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.44-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
+          </svg>
+        </button>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+        <button onclick="closeCreateUserModal()" class="action-btn" style="background: #eee; padding: 6px 12px; width:auto;">Cancel</button>
+        <button onclick="saveNewUserProfile()" class="action-btn btn-save" style="padding: 6px 14px; width:auto;">Create Profile</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete User Modal -->
+  <div class="modal-overlay" id="delete-user-modal">
+    <div class="modal" style="width: 420px;">
+      <h3 style="font-size: 1.15rem; border-bottom: 2px solid #c62828; color: #c62828; padding-bottom: 6px;">Delete Examiner Profile</h3>
+
+      <label class="field-label">Choose Profile to Delete:</label>
+      <select id="delete-user-select" class="modal-field" style="margin-top: 4px;"></select>
+
+      <label class="field-label" style="margin-top: 6px;">Enter Profile Password:</label>
+      <div class="password-input-wrap">
+        <input type="password" id="delete-user-pass" class="modal-field" placeholder="Enter password to confirm deletion" />
+        <button type="button" class="btn-toggle-eye" onclick="togglePasswordVisibility('delete-user-pass', this)" title="Show / Hide Password">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.44-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
+          </svg>
+        </button>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+        <button onclick="closeDeleteUserModal()" class="action-btn" style="background: #eee; padding: 6px 12px; width:auto;">Cancel</button>
+        <button onclick="confirmDeleteUser()" class="action-btn btn-del" style="padding: 6px 14px; width:auto;">Delete Permanently</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEGAL INFO MODAL (PRIVACY & TERMS) -->
+  <div class="modal-overlay" id="legal-modal">
+    <div class="modal" style="width: 500px;">
+      <h3 id="legal-modal-title" style="font-size: 1.15rem; border-bottom: 2px solid var(--ielts-red); padding-bottom: 6px; color: var(--ielts-dark);">
+        Information
+      </h3>
+      <div id="legal-modal-body" style="font-size: 0.88rem; color: #334155; line-height: 1.55; max-height: 320px; overflow-y: auto; padding-right: 4px;"></div>
+      <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+        <button onclick="closeLegalModal()" class="action-btn" style="background: #eee; padding: 7px 16px; font-size: 0.85rem; width:auto;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOAD EXTERNAL DATA REPOSITORIES -->
+  <script src="mock-tests-data.js"></script>
+  <script src="feedback-data.js"></script>
+
+  <!-- APPLICATION ENGINE & LOGIC -->
+  <script>
+    /* DIRECTORY PATH COPIERS */
+    const COMMAND_MAC = "open ~/Library/Application\\ Support/Google/Chrome/Default/Local\\ Storage";
+    const COMMAND_WIN = 'explorer "%LocalAppData%\\Google\\Chrome\\User Data\\Default\\Local Storage"';
+
+    function copyFolderPath(platform) {
+      const textToCopy = (platform === 'mac') ? COMMAND_MAC : COMMAND_WIN;
+      const btnId = (platform === 'mac') ? 'btn-copy-mac' : 'btn-copy-win';
+      const labelId = (platform === 'mac') ? 'btn-copy-mac-label' : 'btn-copy-win-label';
+      const defaultText = (platform === 'mac') ? '📋 Copy Path: macOS' : '📋 Copy Path: Windows';
+
+      const performCopy = () => {
+        const btn = document.getElementById(btnId);
+        const label = document.getElementById(labelId);
+        if (!btn || !label) return;
+
+        btn.classList.add('copied');
+        label.textContent = '✓ Copied!';
+
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          label.textContent = defaultText;
+        }, 2200);
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textToCopy)
+          .then(performCopy)
+          .catch(() => fallbackCopy(textToCopy, performCopy));
+      } else {
+        fallbackCopy(textToCopy, performCopy);
+      }
+    }
+
+    function fallbackCopy(text, callback) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        if (callback) callback();
+      } catch (err) {}
+      document.body.removeChild(ta);
+    }
+
+    /* ICONS & VISIBILITY TOGGLE */
+    const SVG_EYE_SLASH = `
+      <svg viewBox="0 0 24 24">
+        <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.44-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
+      </svg>
+    `;
+    const SVG_EYE_OPEN = `
+      <svg viewBox="0 0 24 24">
+        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+      </svg>
+    `;
+
+    function togglePasswordVisibility(inputId, btnEl) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        btnEl.innerHTML = SVG_EYE_OPEN;
+        btnEl.title = 'Hide Password';
+      } else {
+        input.type = 'password';
+        btnEl.innerHTML = SVG_EYE_SLASH;
+        btnEl.title = 'Show Password';
+      }
+    }
+
+    /* LEGAL MODAL HANDLERS */
+    function openLegalModal(type) {
+      const modal = document.getElementById('legal-modal');
+      const titleEl = document.getElementById('legal-modal-title');
+      const bodyEl = document.getElementById('legal-modal-body');
+
+      if (type === 'privacy') {
+        titleEl.textContent = 'Privacy Policy';
+        bodyEl.innerHTML = `
+          <p style="margin-bottom: 8px;"><strong>1. Offline-First Data Storage</strong><br>
+          The IELTS Speaking Examiner Station operates strictly on your local device. All examiner profiles, assessment logs, candidate notes, and band evaluations are stored using your browser's Local Storage (<code style="background:#eee; padding:1px 4px; border-radius:3px;">localStorage</code>).</p>
+
+          <p style="margin-bottom: 8px;"><strong>2. No External Tracking or Telemetry</strong><br>
+          This application does not collect, transmit, or share personal candidate identifiers, voice recordings, or evaluation metrics with external servers or third-party analytical platforms.</p>
+
+          <p style="margin-bottom: 8px;"><strong>3. Data Retention & Control</strong><br>
+          You maintain full ownership and control over your examination records. Candidate records can be searched, reviewed, updated, exported to PDF, or permanently purged from your browser at any time via the workstation dashboard.</p>
+        `;
+      } else {
+        titleEl.textContent = 'Terms & Conditions';
+        bodyEl.innerHTML = `
+          <p style="margin-bottom: 8px;"><strong>1. Intended Educational Purpose</strong><br>
+          This workstation is an examiner assistance tool engineered for simulated IELTS Speaking assessments, classroom mocks, and student training diagnostics.</p>
+
+          <p style="margin-bottom: 8px;"><strong>2. Disclaimer on Official IELTS Scoring</strong><br>
+          Scores and diagnostic feedback generated through this application reflect independent teacher assessment. They are not affiliated with, endorsed by, or accredited by IELTS Australia, the British Council, or Cambridge Assessment English.</p>
+
+          <p style="margin-bottom: 8px;"><strong>3. Examiner Responsibility</strong><br>
+          The examiner is solely responsible for ensuring the accuracy of evaluation records, appropriate password management for profiles, and compliance with institutional student data policies.</p>
+        `;
+      }
+
+      modal.classList.add('active');
+    }
+
+    function closeLegalModal() {
+      document.getElementById('legal-modal').classList.remove('active');
+    }
+
+    /* TEXT ZOOM HANDLER */
+    let currentZoomScale = 0.9;
+    function adjustTextZoom(delta) {
+      if (delta === 0) {
+        currentZoomScale = 1.0;
+      } else {
+        currentZoomScale = Math.min(1.6, Math.max(0.8, +(currentZoomScale + delta).toFixed(2)));
+      }
+      document.documentElement.style.setProperty('--test-font-scale', currentZoomScale);
+      const zoomTextEl = document.getElementById('zoom-level-text');
+      if (zoomTextEl) {
+        zoomTextEl.textContent = `${Math.round(currentZoomScale * 100)}%`;
+      }
+    }
+
+    /* MULTI-USER MANAGEMENT & AUTH SYSTEM */
+    const DEFAULT_EXAMINER = "MD Sezadur Rahman";
+    const DEFAULT_PASS = "sezad13005";
+
+    let currentUser = null;
+
+    function initUserSystem() {
+      let users = JSON.parse(localStorage.getItem('ielts_examiner_profiles') || 'null');
+
+      if (!users || !Array.isArray(users) || users.length === 0) {
+        users = [
+          { name: DEFAULT_EXAMINER, pass: DEFAULT_PASS }
+        ];
+        localStorage.setItem('ielts_examiner_profiles', JSON.stringify(users));
+      }
+
+      const legacyLogs = JSON.parse(localStorage.getItem('ielts_examiner_logs') || 'null');
+      const defaultUserLogsKey = `ielts_logs_${DEFAULT_EXAMINER}`;
+      if (legacyLogs && !localStorage.getItem(defaultUserLogsKey)) {
+        localStorage.setItem(defaultUserLogsKey, JSON.stringify(legacyLogs));
+      }
+
+      populateUserSelect();
+    }
+
+    function populateUserSelect() {
+      const users = JSON.parse(localStorage.getItem('ielts_examiner_profiles') || '[]');
+      const select = document.getElementById('auth-user-select');
+      select.innerHTML = users.map(u => `<option value="${escapeHtml(u.name)}">${escapeHtml(u.name)}</option>`).join('');
+      document.getElementById('auth-password').value = '';
+    }
+
+    function onUserSelectChange() {
+      document.getElementById('auth-password').value = '';
+      document.getElementById('auth-password').focus();
+    }
+
+    function loginUser() {
+      const users = JSON.parse(localStorage.getItem('ielts_examiner_profiles') || '[]');
+      const selectedName = document.getElementById('auth-user-select').value;
+      const enteredPass = document.getElementById('auth-password').value;
+
+      const user = users.find(u => u.name === selectedName);
+      if (!user) {
+        alert("Please select a valid examiner profile.");
+        return;
+      }
+
+      if (user.pass !== enteredPass) {
+        alert("Incorrect password. Please try again.");
+        document.getElementById('auth-password').focus();
+        return;
+      }
+
+      currentUser = user.name;
+      document.getElementById('current-user-tag').textContent = `Examiner: ${currentUser}`;
+
+      document.getElementById('view-auth').style.display = 'none';
+      document.getElementById('main-header').style.display = 'flex';
+      renderTestList();
+      renderLogs();
+      updateCandidateSuggestions();
+      renderQuickSnippets();
+      navigate('home');
+    }
+
+    function logoutUser() {
+      currentUser = null;
+      document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+      document.getElementById('view-auth').style.display = 'flex';
+      document.getElementById('main-header').style.display = 'none';
+      populateUserSelect();
+    }
+
+    function openCreateUserModal() {
+      document.getElementById('new-user-name').value = '';
+      document.getElementById('new-user-pass1').value = '';
+      document.getElementById('new-user-pass2').value = '';
+      document.getElementById('new-user-pass1').type = 'password';
+      document.getElementById('new-user-pass2').type = 'password';
+
+      const eyes = document.querySelectorAll('#create-user-modal .btn-toggle-eye');
+      eyes.forEach(e => e.innerHTML = SVG_EYE_SLASH);
+
+      document.getElementById('create-user-modal').classList.add('active');
+    }
+
+    function closeCreateUserModal() {
+      document.getElementById('create-user-modal').classList.remove('active');
+    }
+
+    function saveNewUserProfile() {
+      const name = document.getElementById('new-user-name').value.trim();
+      const pass1 = document.getElementById('new-user-pass1').value.trim();
+      const pass2 = document.getElementById('new-user-pass2').value.trim();
+
+      if (!name || !pass1 || !pass2) {
+        alert("Please provide the examiner name and confirm your password.");
+        return;
+      }
+
+      if (pass1 !== pass2) {
+        alert("Passwords do not match. Please verify your password.");
+        document.getElementById('new-user-pass2').focus();
+        return;
+      }
+
+      const users = JSON.parse(localStorage.getItem('ielts_examiner_profiles') || '[]');
+      if (users.some(u => u.name.toLowerCase() === name.toLowerCase())) {
+        alert("A profile with this examiner name already exists.");
+        return;
+      }
+
+      users.push({ name, pass: pass1 });
+      localStorage.setItem('ielts_examiner_profiles', JSON.stringify(users));
+      closeCreateUserModal();
+      populateUserSelect();
+      document.getElementById('auth-user-select').value = name;
+      document.getElementById('auth-password').focus();
+      alert(`Examiner profile '${name}' created successfully!`);
+    }
+
+    function openDeleteUserModal() {
+      const users = JSON.parse(localStorage.getItem('ielts_examiner_profiles') || '[]');
+      const select = document.getElementById('delete-user-select');
+      select.innerHTML = users.map(u => `<option value="${escapeHtml(u.name)}">${escapeHtml(u.name)}</option>`).join('');
+
+      document.getElementById('delete-user-pass').value = '';
+      document.getElementById('delete-user-pass').type = 'password';
+
+      const eye = document.querySelector('#delete-user-modal .btn-toggle-eye');
+      if (eye) eye.innerHTML = SVG_EYE_SLASH;
+
+      document.getElementById('delete-user-modal').classList.add('active');
+    }
+
+    function closeDeleteUserModal() {
+      document.getElementById('delete-user-modal').classList.remove('active');
+    }
+
+    function confirmDeleteUser() {
+      const selectedName = document.getElementById('delete-user-select').value;
+      const pass = document.getElementById('delete-user-pass').value;
+      const users = JSON.parse(localStorage.getItem('ielts_examiner_profiles') || '[]');
+
+      const userIdx = users.findIndex(u => u.name === selectedName);
+      if (userIdx === -1) return;
+
+      if (users[userIdx].pass !== pass) {
+        alert("Incorrect password. Profile deletion aborted.");
+        return;
+      }
+
+      if (users.length <= 1) {
+        alert("Cannot delete the only remaining profile on the system.");
+        return;
+      }
+
+      if (confirm(`Are you sure you want to permanently delete '${selectedName}' and all associated test records?`)) {
+        users.splice(userIdx, 1);
+        localStorage.setItem('ielts_examiner_profiles', JSON.stringify(users));
+        localStorage.removeItem(`ielts_logs_${selectedName}`);
+        closeDeleteUserModal();
+        populateUserSelect();
+        alert(`Profile '${selectedName}' has been removed.`);
+      }
+    }
+
+    function getUserLogsKey() {
+      return currentUser ? `ielts_logs_${currentUser}` : `ielts_logs_${DEFAULT_EXAMINER}`;
+    }
+
+    function formatExamDate(dateObj) {
+      const day = dateObj.getDate();
+      const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+      const month = monthNames[dateObj.getMonth()];
+      const year = dateObj.getFullYear();
+      return `${day} ${month}, ${year}`;
+    }
+
+    function parseBandScore(scoreStr) {
+      if (!scoreStr) return null;
+      const clean = String(scoreStr).trim();
+      if (clean === "<4.0") return 3.5;
+      const num = parseFloat(clean);
+      return (!isNaN(num) && num >= 1 && num <= 9) ? num : null;
+    }
+
+    /* DYNAMIC RECOMMENDATION ENGINE BY BAND SCORE */
+    function getBandRecommendations(bandScore) {
+      const num = parseBandScore(bandScore);
+
+      if (num === null) {
+        return [
+          {
+            title: "Structured Extension",
+            text: "Give immediate direct answers followed by a reason, a real-life example, and a concluding reflection."
+          },
+          {
+            title: "Lexical Precision",
+            text: "Focus on thematic collocations rather than single vocabulary words; avoid reciting memorized template idioms."
+          },
+          {
+            title: "Consistent Grammar",
+            text: "Monitor past-tense narratives actively to ensure verb consistency throughout your Part 2 turn."
+          }
+        ];
+      }
+
+      if (num < 6.0) {
+        return [
+          {
+            title: "Structured Answer Extension (A-R-E Technique)",
+            text: "Never stop after a simple 'Yes/No' or one-sentence reply. Train the A-R-E framework: give a direct Answer, supply a logical Reason ('because / since'), and provide a concrete Example ('For instance, last weekend...')."
+          },
+          {
+            title: "Basic Tense & Verb Agreement Stability",
+            text: "Eliminate subject-verb mismatches ('he go', 'they was') and past-tense drop-offs. In Part 2, lock into past tense from the start and actively monitor regular and irregular past forms throughout your narrative."
+          },
+          {
+            title: "Chunking Over Single-Word Delivery",
+            text: "Avoid pausing between individual words. Group words into natural 3- to 4-word thought units (e.g., 'in my hometown / there are many places / to visit') to build speech rhythm and eliminate mid-sentence halts."
+          }
+        ];
+      } else if (num <= 6.5) {
+        return [
+          {
+            title: "Shift to Societal Perspectives in Part 3",
+            text: "Do not rely solely on 'I think' or personal anecdotes in Part 3. Frame arguments from broader societal viewpoints using impersonal openers: 'From an economic standpoint...', 'Generally speaking, older generations tend to...', or 'A common perspective is that...'"
+          },
+          {
+            title: "Thematic Collocations Over Isolated 'Big Words'",
+            text: "Avoid memorizing lists of complex, isolated vocabulary that often sound forced. Instead, learn topic-specific noun-verb and adjective-noun pairings (e.g., 'alleviate traffic congestion', 'foster a sense of community', 'sustainable practices')."
+          },
+          {
+            title: "Subordination & Complex Clause Control",
+            text: "Move beyond coordinating conjunctions ('and, but, so'). Intentionally integrate concession clauses ('Although / Even though...'), conditional frames ('Were that to happen, it would lead to...'), and relative clauses ('which in turn creates...')."
+          }
+        ];
+      } else if (num <= 7.5) {
+        return [
+          {
+            title: "Advanced Cohesion & Referential Flow",
+            text: "Reduce over-reliance on explicit mechanical linkers ('Moreover, Furthermore') and replace them with natural referential pronouns, nominalization, and subtle transitions ('That sort of development inevitably leads to...', 'Such trends, however, are rarely sustainable')."
+          },
+          {
+            title: "Nuance, Connotation & Register Flexibility",
+            text: "Use idiomatic language naturally without sounding scripted. Avoid cliches ('every coin has two sides') in favor of natural conversational phrasing and precise qualifiers ('predominantly', 'marginally', 'to a certain extent')."
+          },
+          {
+            title: "Intonation Contours & Meaningful Emphasis",
+            text: "Use contrastive stress to highlight shades of meaning, contrast, or stance (e.g., 'I used to think it was viable, but now I’m far less convinced'). Ensure intonation patterns vary naturally across complex discourse turns."
+          }
+        ];
+      } else {
+        return [
+          {
+            title: "Syntactic Spontaneity & Precision",
+            text: "Maintain full structural precision even when expressing complex, multifaceted hypotheses. Aim for effortless accuracy with inversions, mixed conditionals, and cleft sentences ('What concerns me most about this trend is...')."
+          },
+          {
+            title: "Extended Abstract Reasoning & Counter-Arguments",
+            text: "Anticipate counterpoints spontaneously. Introduce concessions and refute them within the same turn ('While it is tempting to attribute this entirely to social media, that overlooks the deeper socio-economic factors at play')."
+          },
+          {
+            title: "Subtle Idiomatic Phrasing & Natural Rapport",
+            text: "Eliminate any trace of pre-rehearsed structure. Focus entirely on genuine conversational rapport, subtle hedging, and nuanced phrasing that directly addresses the prompt's underlying subtleties."
+          }
+        ];
+      }
+    }
+
+    function updateAssessmentStats() {
+      const key = getUserLogsKey();
+      const logs = JSON.parse(localStorage.getItem(key) || '[]');
+      const totalTestsEl = document.getElementById('stat-total-tests');
+      const dailyAvgEl = document.getElementById('stat-daily-avg');
+      const meanScoreEl = document.getElementById('stat-mean-score');
+      const medianScoreEl = document.getElementById('stat-median-score');
+
+      if (!totalTestsEl || !dailyAvgEl) return;
+
+      const total = logs.length;
+      totalTestsEl.textContent = total;
+
+      if (total === 0) {
+        dailyAvgEl.textContent = "0.0";
+        if (meanScoreEl) meanScoreEl.textContent = "-";
+        if (medianScoreEl) medianScoreEl.textContent = "-";
+        return;
+      }
+
+      const uniqueDays = new Set(logs.map(item => item.date).filter(Boolean));
+      const dayCount = uniqueDays.size || 1;
+      const avg = (total / dayCount).toFixed(1);
+      dailyAvgEl.textContent = avg;
+
+      const numericScores = logs
+        .map(item => parseBandScore(item.band))
+        .filter(n => n !== null)
+        .sort((a, b) => a - b);
+
+      if (numericScores.length === 0) {
+        if (meanScoreEl) meanScoreEl.textContent = "-";
+        if (medianScoreEl) medianScoreEl.textContent = "-";
+        return;
+      }
+
+      const sum = numericScores.reduce((acc, curr) => acc + curr, 0);
+      const mean = (sum / numericScores.length).toFixed(1);
+      if (meanScoreEl) meanScoreEl.textContent = mean;
+
+      const mid = Math.floor(numericScores.length / 2);
+      let rawMedian = 0;
+      if (numericScores.length % 2 !== 0) {
+        rawMedian = numericScores[mid];
+      } else {
+        rawMedian = (numericScores[mid - 1] + numericScores[mid]) / 2;
+      }
+
+      const halfStepMedian = (Math.round(rawMedian * 2) / 2).toFixed(1);
+      if (medianScoreEl) medianScoreEl.textContent = halfStepMedian;
+    }
+
+    function getExaminerIntro() {
+      const name = currentUser || DEFAULT_EXAMINER;
+      return `
+        <div class="script-part">
+          <h3>Before Starting</h3>
+          <p class="examiner-say">
+            Good morning / afternoon. My name is ${escapeHtml(name)}. This is the IELTS Speaking Test.<br>
+            Could you please tell me your full name?<br>
+            The test has three parts. I will give you instructions for each part. Let’s begin.
+          </p>
+        </div>
+      `;
+    }
+
+    function playNotificationChime() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+
+        const notes = [
+          { freq: 880, start: 0, duration: 0.28 },
+          { freq: 1174.66, start: 0.22, duration: 0.65 }
+        ];
+
+        notes.forEach(n => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(n.freq, ctx.currentTime + n.start);
+
+          gain.gain.setValueAtTime(0.0001, ctx.currentTime + n.start);
+          gain.gain.exponentialRampToValueAtTime(0.35, ctx.currentTime + n.start + 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + n.start + n.duration);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc.start(ctx.currentTime + n.start);
+          osc.stop(ctx.currentTime + n.start + n.duration);
+        });
+      } catch (err) {
+        console.error("Audio chime error:", err);
+      }
+    }
+
+    function formatNote(command, value = null) {
+      const editor = document.getElementById('candidate-notes');
+      editor.focus();
+      document.execCommand(command, false, value);
+    }
+
+    function formatEditNote(command, value = null) {
+      const editor = document.getElementById('edit-candidate-notes');
+      editor.focus();
+      document.execCommand(command, false, value);
+    }
+
+    /* PULL DATA FROM SINGLE FEEDBACK FILE */
+    function getFeedbackRepository() {
+      return (window.IELTS_FEEDBACK_DATA && Array.isArray(window.IELTS_FEEDBACK_DATA))
+        ? window.IELTS_FEEDBACK_DATA
+        : [];
+    }
+
+    function renderQuickSnippets() {
+      const container = document.getElementById('quick-snippets-list');
+      if (!container) return;
+
+      const items = getFeedbackRepository();
+      
+      let html = `<button type="button" class="qr-pill btn-blank-bullet" onclick="insertBlankBullet()" title="Insert an empty bullet point to type custom observations">+ Blank Custom Note</button>`;
+
+      if (items.length === 0) {
+        container.innerHTML = html + `<span style="font-size:0.75rem; color:#888;">No feedback presets loaded. Check feedback-data.js.</span>`;
+        return;
+      }
+
+      html += items.map((item, index) => {
+        return `<button type="button" class="qr-pill" onclick="insertNoteBulletByIndex(${index})">${escapeHtml(item.code)}</button>`;
+      }).join('');
+
+      container.innerHTML = html;
+    }
+
+    function insertBlankBullet() {
+      insertNoteBullet('');
+    }
+
+    function insertNoteBulletByIndex(index) {
+      const items = getFeedbackRepository();
+      if (!items[index]) return;
+      insertNoteBullet(items[index].code);
+    }
+
+    function insertNoteBullet(textToInsert) {
+      const editor = document.getElementById('candidate-notes');
+      if (!editor) return;
+
+      editor.focus();
+      const sel = window.getSelection();
+
+      const displayText = textToInsert ? `• ${escapeHtml(textToInsert)}` : `• `;
+
+      const currentHtml = editor.innerHTML.trim();
+      if (!currentHtml || currentHtml === '<br>') {
+        editor.innerHTML = `<div>${displayText}</div>`;
+        placeCursorAtEnd(editor);
+        return;
+      }
+
+      if (!sel || sel.rangeCount === 0 || !editor.contains(sel.anchorNode)) {
+        const newLine = document.createElement('div');
+        newLine.textContent = textToInsert ? `• ${textToInsert}` : `• `;
+        editor.appendChild(newLine);
+        placeCursorAtEnd(editor);
+        return;
+      }
+
+      const range = sel.getRangeAt(0);
+
+      let currentBlock = sel.anchorNode;
+      while (currentBlock && currentBlock.parentNode !== editor && currentBlock !== editor) {
+        currentBlock = currentBlock.parentNode;
+      }
+
+      const blockText = currentBlock ? currentBlock.textContent.trim() : '';
+      if (blockText === '' || blockText === '•') {
+        const div = document.createElement('div');
+        div.textContent = textToInsert ? `• ${textToInsert}` : `• `;
+        if (currentBlock && currentBlock !== editor) {
+          editor.replaceChild(div, currentBlock);
+        } else {
+          editor.appendChild(div);
+        }
+        placeCaretAfterElement(div);
+        return;
+      }
+
+      const nextDiv = document.createElement('div');
+      nextDiv.textContent = textToInsert ? `• ${textToInsert}` : `• `;
+
+      if (currentBlock && currentBlock !== editor) {
+        currentBlock.after(nextDiv);
+      } else {
+        editor.appendChild(nextDiv);
+      }
+      placeCaretAfterElement(nextDiv);
+    }
+
+    function placeCaretAfterElement(el) {
+      el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      const sel = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+
+    function placeCursorAtEnd(el) {
+      el.focus();
+      const sel = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+
+    function getMockTests() {
+      return (window.IELTS_MOCK_TESTS && Array.isArray(window.IELTS_MOCK_TESTS))
+        ? window.IELTS_MOCK_TESTS
+        : [];
+    }
+
+    let currentActiveTestId = null;
+
+    function navigate(viewName) {
+      exitCandidateMode();
+      document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+      if (viewName === 'home') {
+        document.getElementById('view-home').classList.add('active');
+        renderLogs();
+      } else {
+        document.getElementById('view-test').classList.add('active');
+      }
+    }
+
+    function loadTest(testId) {
+      const tests = getMockTests();
+      const test = tests.find(t => t.id === testId);
+      if (!test) return;
+      currentActiveTestId = test.id;
+
+      document.getElementById('test-content-area').innerHTML = `
+        <h1 class="test-main-title">${test.title}</h1>
+        ${getExaminerIntro()}
+        ${test.contentHtml}
+      `;
+      document.getElementById('candidate-name').value = '';
+      document.getElementById('candidate-email').value = '';
+      document.getElementById('candidate-score').value = '';
+      document.getElementById('candidate-notes').innerHTML = '';
+      resetStopwatch();
+      resetBar();
+      updateCandidateSuggestions();
+      resetNoteHistory();
+      navigate('test');
+    }
+
+    function renderTestList() {
+      const container = document.getElementById('test-list');
+      const tests = getMockTests();
+
+      if (tests.length === 0) {
+        container.innerHTML = `<p style="padding: 12px; color: #888;">No mock tests found. Please verify that 'mock-tests-data.js' is in the same folder.</p>`;
+        return;
+      }
+
+      container.innerHTML = tests.map(t => `
+        <button class="test-btn" onclick="loadTest('${t.id}')">
+          ${t.title}
+        </button>
+      `).join('');
+    }
+
+    let candidateHistoryRecords = [];
+    let currentHistoryIndex = -1;
+    let draftNotesCache = '';
+    let draftScoreCache = '';
+
+    function updateCandidateSuggestions() {
+      const logs = JSON.parse(localStorage.getItem(getUserLogsKey()) || '[]');
+      const names = [...new Set(logs.map(item => item.candidate).filter(Boolean))];
+      const datalist = document.getElementById('candidate-suggestions');
+      if (datalist) {
+        datalist.innerHTML = names.map(n => `<option value="${escapeHtml(n)}"></option>`).join('');
+      }
+    }
+
+    function onCandidateNameChange() {
+      const inputName = document.getElementById('candidate-name').value.trim().toLowerCase();
+      const logs = JSON.parse(localStorage.getItem(getUserLogsKey()) || '[]');
+
+      candidateHistoryRecords = logs.filter(item => item.candidate && item.candidate.trim().toLowerCase() === inputName);
+
+      if (candidateHistoryRecords.length > 0 && candidateHistoryRecords[0].email) {
+        const emailInput = document.getElementById('candidate-email');
+        if (emailInput && !emailInput.value.trim()) {
+          emailInput.value = candidateHistoryRecords[0].email;
+        }
+      }
+
+      const historyBar = document.getElementById('notes-history-bar');
+      if (candidateHistoryRecords.length > 0) {
+        historyBar.style.display = 'flex';
+        resetNoteHistory();
+      } else {
+        historyBar.style.display = 'none';
+        resetNoteHistory();
+      }
+    }
+
+    function resetNoteHistory() {
+      currentHistoryIndex = -1;
+      draftNotesCache = '';
+      draftScoreCache = '';
+
+      const editor = document.getElementById('candidate-notes');
+      if (editor) {
+        editor.setAttribute('contenteditable', 'true');
+        editor.classList.remove('viewing-history');
+      }
+      updateHistoryNavigatorUI();
+    }
+
+    function navigateNoteHistory(direction) {
+      if (candidateHistoryRecords.length === 0) return;
+
+      const editor = document.getElementById('candidate-notes');
+      const scoreSelect = document.getElementById('candidate-score');
+
+      if (currentHistoryIndex === -1 && direction > 0) {
+        draftNotesCache = editor.innerHTML;
+        draftScoreCache = scoreSelect.value;
+      }
+
+      let newIndex = currentHistoryIndex + direction;
+
+      if (newIndex < -1) newIndex = -1;
+      if (newIndex >= candidateHistoryRecords.length) newIndex = candidateHistoryRecords.length - 1;
+
+      currentHistoryIndex = newIndex;
+      updateHistoryNavigatorUI();
+
+      if (currentHistoryIndex === -1) {
+        editor.innerHTML = draftNotesCache;
+        scoreSelect.value = draftScoreCache;
+        editor.setAttribute('contenteditable', 'true');
+        editor.classList.remove('viewing-history');
+      } else {
+        const record = candidateHistoryRecords[currentHistoryIndex];
+        editor.innerHTML = record.notes || '<em>No notes recorded for this assessment.</em>';
+        scoreSelect.value = record.band || '';
+        editor.setAttribute('contenteditable', 'false');
+        editor.classList.add('viewing-history');
+      }
+    }
+
+    function updateHistoryNavigatorUI() {
+      const leftBtn = document.getElementById('btn-hist-left');
+      const rightBtn = document.getElementById('btn-hist-right');
+      const label = document.getElementById('history-info-label');
+
+      if (!leftBtn || !rightBtn || !label) return;
+
+      if (candidateHistoryRecords.length === 0) {
+        leftBtn.disabled = true;
+        rightBtn.disabled = true;
+        label.innerHTML = 'Active Exam Notes';
+        return;
+      }
+
+      leftBtn.disabled = (currentHistoryIndex === -1);
+      rightBtn.disabled = (currentHistoryIndex === candidateHistoryRecords.length - 1);
+
+      if (currentHistoryIndex === -1) {
+        label.innerHTML = `<span style="color: var(--ielts-red);">● Active Exam Notes</span><br><span style="font-size: 0.7rem; font-weight: normal; color: #666;">(${candidateHistoryRecords.length} older record${candidateHistoryRecords.length > 1 ? 's' : ''} available ➔)</span>`;
+      } else {
+        const record = candidateHistoryRecords[currentHistoryIndex];
+        label.innerHTML = `<span style="color: #b45309;">📖 Past Record (${record.date})</span><br><span style="font-size: 0.72rem; color: #475569;">${record.testTitle} — <strong>Band ${record.band}</strong></span>`;
+      }
+    }
+
+    let candidatePrepInterval = null;
+    let candidatePrepEndTime = 0;
+    const CANDIDATE_PREP_MS = 65000;
+
+    function openCandidateMode(cueCardEl) {
+      const overlay = document.getElementById('candidate-mode-overlay');
+      const target = document.getElementById('candidate-card-content');
+
+      const clone = cueCardEl.cloneNode(true);
+      const badge = clone.querySelector('.cue-card-badge');
+      if (badge) badge.remove();
+
+      target.innerHTML = clone.innerHTML;
+      overlay.classList.add('active');
+      resetCandidatePrepBtn();
+    }
+
+    function exitCandidateMode() {
+      const overlay = document.getElementById('candidate-mode-overlay');
+      if (overlay) overlay.classList.remove('active');
+      stopCandidatePrep();
+    }
+
+    function toggleCandidatePrep() {
+      if (candidatePrepInterval) {
+        stopCandidatePrep();
+      } else {
+        startCandidatePrep();
+      }
+    }
+
+    function startCandidatePrep() {
+      stopCandidatePrep();
+      const btn = document.getElementById('btn-candidate-prep');
+      btn.innerHTML = '⏹ Stop Prep';
+      btn.classList.add('running');
+
+      candidatePrepEndTime = performance.now() + CANDIDATE_PREP_MS;
+      startCountdown(CANDIDATE_PREP_MS, 'prep');
+
+      candidatePrepInterval = setInterval(() => {
+        const remaining = candidatePrepEndTime - performance.now();
+        if (remaining <= 0) {
+          stopCandidatePrep();
+          playNotificationChime();
+        }
+      }, 50);
+    }
+
+    function stopCandidatePrep() {
+      if (candidatePrepInterval) {
+        clearInterval(candidatePrepInterval);
+        candidatePrepInterval = null;
+      }
+      resetCandidatePrepBtn();
+    }
+
+    function resetCandidatePrepBtn() {
+      const btn = document.getElementById('btn-candidate-prep');
+      if (btn) {
+        btn.innerHTML = '▶ Start Prep';
+        btn.classList.remove('running');
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        exitCandidateMode();
+        closeDetailModal();
+        closeEditModal();
+        closeCreateUserModal();
+        closeDeleteUserModal();
+        closeLegalModal();
+      }
+    });
+
+    /* STOPWATCH */
+    let swInterval = null;
+    let swStartTime = 0;
+    let swElapsedTime = 0;
+
+    function formatTimeWithMs(totalMs) {
+      const totalHundredths = Math.floor(totalMs / 10);
+      const cs = String(totalHundredths % 100).padStart(2, '0');
+      const totalSec = Math.floor(totalMs / 1000);
+      const s = String(totalSec % 60).padStart(2, '0');
+      const m = String(Math.floor(totalSec / 60)).padStart(2, '0');
+      return `${m}:${s}.${cs}`;
+    }
+
+    function startStopwatch() {
+      if (swInterval) return;
+      swStartTime = performance.now() - swElapsedTime;
+      swInterval = setInterval(() => {
+        swElapsedTime = performance.now() - swStartTime;
+        document.getElementById('stopwatch-display').textContent = formatTimeWithMs(swElapsedTime);
+      }, 25);
+    }
+
+    function pauseStopwatch() {
+      if (swInterval) {
+        clearInterval(swInterval);
+        swInterval = null;
+      }
+    }
+
+    function resetStopwatch() {
+      pauseStopwatch();
+      swElapsedTime = 0;
+      document.getElementById('stopwatch-display').textContent = "00:00.00";
+    }
+
+    /* COUNTDOWN / BAR TIMER */
+    let barInterval = null;
+    let barEndTime = 0;
+    let barTotalDuration = 0;
+    let barType = '';
+
+    function resetBar() {
+      if (barInterval) {
+        clearInterval(barInterval);
+        barInterval = null;
+      }
+      const f1 = document.getElementById('cue-bar-fill');
+      const t1 = document.getElementById('cue-bar-text');
+      f1.style.width = '0%';
+      t1.textContent = 'STANDBY';
+    }
+
+    function startCountdown(durationMs, type) {
+      if (barInterval) clearInterval(barInterval);
+
+      const f1 = document.getElementById('cue-bar-fill');
+      const t1 = document.getElementById('cue-bar-text');
+
+      const color = (type === 'prep') ? 'var(--prep-purple)' : 'var(--speak-blue)';
+      f1.style.backgroundColor = color;
+
+      barTotalDuration = durationMs;
+      barType = type.toUpperCase();
+      barEndTime = performance.now() + durationMs;
+
+      f1.style.width = '100%';
+      t1.textContent = `${barType}: ${formatTimeWithMs(durationMs)}`;
+
+      barInterval = setInterval(() => {
+        const remaining = Math.max(0, barEndTime - performance.now());
+        const percentage = (remaining / barTotalDuration) * 100;
+
+        f1.style.width = `${percentage}%`;
+        t1.textContent = `${barType}: ${formatTimeWithMs(remaining)}`;
+
+        if (remaining <= 0) {
+          clearInterval(barInterval);
+          barInterval = null;
+          t1.textContent = `${barType} FINISHED!`;
+          playNotificationChime();
+        }
+      }, 25);
+    }
+
+    /* SAVE & LOG SYSTEM */
+    function saveAssessment() {
+      if (currentHistoryIndex !== -1) {
+        resetNoteHistory();
+      }
+
+      const name = document.getElementById('candidate-name').value.trim();
+      const email = document.getElementById('candidate-email').value.trim();
+      const score = document.getElementById('candidate-score').value;
+      const notes = document.getElementById('candidate-notes').innerHTML.trim();
+
+      if (!name) {
+        alert('Please enter a candidate name or ID.');
+        return;
+      }
+
+      const tests = getMockTests();
+      const activeTest = tests.find(t => t.id === currentActiveTestId);
+
+      const entry = {
+        date: formatExamDate(new Date()),
+        candidate: name,
+        email: email || "",
+        emailStatus: "unsent",
+        testTitle: activeTest ? activeTest.title : "Speaking Test",
+        band: score || "N/A",
+        notes: notes || "No notes recorded."
+      };
+
+      const key = getUserLogsKey();
+      const existingLogs = JSON.parse(localStorage.getItem(key) || '[]');
+      existingLogs.unshift(entry);
+      localStorage.setItem(key, JSON.stringify(existingLogs));
+
+      updateCandidateSuggestions();
+      onCandidateNameChange();
+      alert('Assessment saved successfully!');
+      navigate('home');
+    }
+
+    function renderLogs(filteredEntries = null) {
+      const key = getUserLogsKey();
+      const allLogs = JSON.parse(localStorage.getItem(key) || '[]');
+      const tbody = document.getElementById('log-table-body');
+
+      updateAssessmentStats();
+
+      let itemsWithIndex = [];
+      if (filteredEntries !== null) {
+        itemsWithIndex = filteredEntries;
+      } else {
+        itemsWithIndex = allLogs.map((item, idx) => ({ ...item, originalIndex: idx }));
+      }
+
+      if (itemsWithIndex.length === 0) {
+        const msg = (filteredEntries !== null) ? 'No matching candidate records found.' : 'No saved test logs found for this examiner.';
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #888;">${msg}</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = itemsWithIndex.map((item) => {
+        const origIdx = item.originalIndex;
+        const status = item.emailStatus || 'unsent';
+
+        let btnClass = 'state-unsent';
+        let btnText = 'Send E-mail';
+
+        if (status === 'sent') {
+          btnClass = 'state-sent';
+          btnText = '✓ E-mail sent';
+        } else if (status === 'resend') {
+          btnClass = 'state-resend';
+          btnText = '↻ Resend';
+        }
+
+        return `
+          <tr class="log-row" onclick="viewLogDetail(${origIdx})">
+            <td style="font-size: 0.78rem; color: #555; font-weight: 500; white-space: nowrap;">${item.date}</td>
+            <td><strong>${escapeHtml(item.candidate)}</strong></td>
+            <td>${escapeHtml(item.testTitle)}</td>
+            <td style="text-align: center;"><strong style="color: var(--ielts-red);">${item.band}</strong></td>
+            <td class="actions-cell" onclick="event.stopPropagation();">
+              <div class="action-button-grid">
+                <!-- ROW 1: EMAIL STATUS BUTTON -->
+                <button
+                  type="button"
+                  id="email-btn-${origIdx}"
+                  class="btn-email-status ${btnClass}"
+                  onclick="triggerSendEmail(${origIdx})"
+                  title="${status === 'sent' ? 'E-mail already delivered' : 'Click to send feedback email'}"
+                >${btnText}</button>
+
+                <!-- ROW 2: EQUAL 3-WAY SPLIT: EDIT, DEL, PDF -->
+                <div class="action-sub-row">
+                  <button type="button" class="action-btn btn-edit" onclick="openEditModal(${origIdx})">Edit</button>
+                  <button type="button" class="action-btn btn-del" onclick="deleteLog(${origIdx})">Del</button>
+                  <button type="button" class="action-btn btn-pdf" onclick="generateCandidatePDF(${origIdx})">PDF</button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterLogs() {
+      const query = document.getElementById('log-search-input').value.trim().toLowerCase();
+      const key = getUserLogsKey();
+      const allLogs = JSON.parse(localStorage.getItem(key) || '[]');
+
+      if (!query) {
+        renderLogs();
+        return;
+      }
+
+      const filtered = [];
+      allLogs.forEach((item, index) => {
+        if (item.candidate && item.candidate.toLowerCase().includes(query)) {
+          filtered.push({ ...item, originalIndex: index });
+        }
+      });
+
+      renderLogs(filtered);
+    }
+
+    function viewLogDetail(index) {
+      const key = getUserLogsKey();
+      const logs = JSON.parse(localStorage.getItem(key) || '[]');
+      const item = logs[index];
+      if (!item) return;
+
+      document.getElementById('det-candidate').textContent = item.candidate;
+      document.getElementById('det-email').textContent = item.email || "No email on record";
+      document.getElementById('det-band').textContent = item.band;
+      document.getElementById('det-date').textContent = item.date;
+      document.getElementById('det-test').textContent = item.testTitle;
+      document.getElementById('det-notes').innerHTML = item.notes;
+
+      const emailBtn = document.getElementById('det-email-btn');
+      if (item.emailStatus === 'sent') {
+        emailBtn.textContent = '✓ E-mail Sent';
+        emailBtn.className = 'action-btn btn-email';
+      } else if (item.emailStatus === 'resend') {
+        emailBtn.textContent = '↻ Resend E-mail';
+        emailBtn.className = 'action-btn btn-del';
+      } else {
+        emailBtn.textContent = '✉️ Send E-mail';
+        emailBtn.className = 'action-btn btn-email';
+      }
+
+      emailBtn.onclick = function() {
+        triggerSendEmail(index);
+      };
+
+      document.getElementById('det-pdf-btn').onclick = function() {
+        generateCandidatePDF(index);
+      };
+
+      document.getElementById('det-edit-btn').onclick = function() {
+        closeDetailModal();
+        openEditModal(index);
+      };
+
+      document.getElementById('detail-modal').classList.add('active');
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detail-modal').classList.remove('active');
+    }
+
+    function deleteLog(index) {
+      if (confirm("Are you sure you want to delete this candidate assessment?")) {
+        const key = getUserLogsKey();
+        const logs = JSON.parse(localStorage.getItem(key) || '[]');
+        logs.splice(index, 1);
+        localStorage.setItem(key, JSON.stringify(logs));
+        filterLogs();
+        updateCandidateSuggestions();
+        onCandidateNameChange();
+        updateAssessmentStats();
+      }
+    }
+
+    function openEditModal(index) {
+      const key = getUserLogsKey();
+      const logs = JSON.parse(localStorage.getItem(key) || '[]');
+      const item = logs[index];
+      if (!item) return;
+
+      document.getElementById('edit-index').value = index;
+      document.getElementById('edit-candidate-name').value = item.candidate;
+      document.getElementById('edit-candidate-email').value = item.email || '';
+      document.getElementById('edit-candidate-score').value = item.band;
+      document.getElementById('edit-candidate-notes').innerHTML = item.notes;
+      document.getElementById('edit-modal').classList.add('active');
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-modal').classList.remove('active');
+    }
+
+    function saveEditLog() {
+      const index = document.getElementById('edit-index').value;
+      const key = getUserLogsKey();
+      const logs = JSON.parse(localStorage.getItem(key) || '[]');
+      if (!logs[index]) return;
+
+      logs[index].candidate = document.getElementById('edit-candidate-name').value.trim() || 'Anonymous';
+      logs[index].email = document.getElementById('edit-candidate-email').value.trim() || '';
+      logs[index].band = document.getElementById('edit-candidate-score').value;
+      logs[index].notes = document.getElementById('edit-candidate-notes').innerHTML.trim();
+
+      localStorage.setItem(key, JSON.stringify(logs));
+      closeEditModal();
+      filterLogs();
+      updateCandidateSuggestions();
+      onCandidateNameChange();
+      updateAssessmentStats();
+    }
+
+    /* =========================================================
+       RICH HTML EMAIL GENERATOR (WITH LOGO BASE64 & ADDRESS)
+       ========================================================= */
+    function buildCandidateEmailHtml(record) {
+      const repository = getFeedbackRepository();
+      const noteHtml = record.notes || '';
+
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = noteHtml;
+      tempDiv.querySelectorAll('div, p, br, li').forEach(el => el.before('\n'));
+
+      const rawText = tempDiv.innerText || tempDiv.textContent || '';
+      const lines = rawText.split('\n')
+        .map(l => l.replace(/^[•\-\*·\s]+/, '').trim())
+        .filter(Boolean);
+
+      const matchedFeedback = [];
+      const unmatchedNotes = [];
+
+      lines.forEach(line => {
+        const normLine = normalizeTextForMatch(line);
+        if (!normLine) return;
+        const found = repository.find(item => {
+          const normCode = normalizeTextForMatch(item.code);
+          return normLine === normCode || normLine.includes(normCode) || normCode.includes(normLine);
+        });
+        if (found) {
+          if (!matchedFeedback.some(m => m.code === found.code)) matchedFeedback.push(found);
+        } else {
+          unmatchedNotes.push(line);
+        }
+      });
+
+      if (matchedFeedback.length === 0 && lines.length > 0) {
+        const entireNoteNorm = normalizeTextForMatch(rawText);
+        repository.forEach(item => {
+          const normCode = normalizeTextForMatch(item.code);
+          if (entireNoteNorm.includes(normCode)) {
+            if (!matchedFeedback.some(m => m.code === item.code)) matchedFeedback.push(item);
+          }
+        });
+      }
+
+      const recs = getBandRecommendations(record.band);
+
+      return `
+        <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+        <html xmlns="http://www.w3.org/1999/xhtml">
+        <head>
+          <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+          <title>IELTS Speaking Feedback</title>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+          <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f1f5f9; padding: 24px 0;">
+            <tr>
+              <td align="center">
+                <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                  
+                  <tr>
+                    <td style="background-color: #ffffff; border-bottom: 4px solid #d32f2f; padding: 24px 32px 18px 32px;">
+                      <h1 style="margin: 0; color: #0f172a; font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">IELTS Speaking Feedback</h1>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td style="padding: 24px 32px 12px 32px;">
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px;">
+                        <tr>
+                          <td width="70%" style="vertical-align: middle;">
+                            <p style="margin: 0 0 6px 0; font-size: 13px; color: #475569;">Candidate Name: <strong style="color: #0f172a; font-size: 15px;">${escapeHtml(record.candidate)}</strong></p>
+                            <p style="margin: 0 0 6px 0; font-size: 13px; color: #475569;">Test Module: <strong style="color: #0f172a;">${escapeHtml(record.testTitle)}</strong></p>
+                            <p style="margin: 0 0 6px 0; font-size: 13px; color: #475569;">Assessment Date: <strong style="color: #0f172a;">${escapeHtml(record.date)}</strong></p>
+                            <p style="margin: 0; font-size: 13px; color: #475569;">Assessing Examiner: <strong style="color: #0f172a;">${escapeHtml(currentUser || DEFAULT_EXAMINER)}</strong></p>
+                          </td>
+                          <td width="30%" align="center" style="vertical-align: middle;">
+                            <table border="0" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border: 2px solid #d32f2f; border-radius: 8px; width: 110px; height: 85px;">
+                              <tr>
+                                <td align="center" style="padding: 8px;">
+                                  <div style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Band Score</div>
+                                  <div style="font-size: 28px; font-weight: 900; color: #d32f2f; line-height: 1.1; margin-top: 2px;">${escapeHtml(record.band)}</div>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td style="padding: 12px 32px;">
+                      <h3 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px;">Assessment Criteria Overview</h3>
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse; font-size: 11px;">
+                        <tr style="background-color: #f8fafc;">
+                          <th align="left" style="border: 1px solid #e2e8f0; padding: 6px 8px; color: #334155; width: 25%;">Fluency & Coherence</th>
+                          <th align="left" style="border: 1px solid #e2e8f0; padding: 6px 8px; color: #334155; width: 25%;">Lexical Resource</th>
+                          <th align="left" style="border: 1px solid #e2e8f0; padding: 6px 8px; color: #334155; width: 25%;">Grammatical Accuracy</th>
+                          <th align="left" style="border: 1px solid #e2e8f0; padding: 6px 8px; color: #334155; width: 25%;">Pronunciation</th>
+                        </tr>
+                        <tr>
+                          <td style="border: 1px solid #e2e8f0; padding: 6px 8px; color: #64748b; vertical-align: top;">Speech flow, linking words, logical order, extension.</td>
+                          <td style="border: 1px solid #e2e8f0; padding: 6px 8px; color: #64748b; vertical-align: top;">Vocabulary precision, collocations, natural paraphrasing.</td>
+                          <td style="border: 1px solid #e2e8f0; padding: 6px 8px; color: #64748b; vertical-align: top;">Sentence variety, tense control, structural precision.</td>
+                          <td style="border: 1px solid #e2e8f0; padding: 6px 8px; color: #64748b; vertical-align: top;">Phoneme clarity, natural stress, rhythm, intonation.</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td style="padding: 12px 32px;">
+                      <h3 style="margin: 0 0 10px 0; font-size: 13px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px;">Targeted Examiner Feedback</h3>
+                      ${matchedFeedback.length > 0 ? matchedFeedback.map(item => `
+                        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-left: 4px solid #d32f2f; border-radius: 4px; margin-bottom: 8px;">
+                          <tr>
+                            <td style="padding: 10px 14px;">
+                              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tr>
+                                  <td align="left" style="font-size: 13px; font-weight: 700; color: #0f172a;">${escapeHtml(item.code)}</td>
+                                  <td align="right"><span style="font-size: 9px; font-weight: 700; color: #475569; background-color: #f1f5f9; padding: 2px 6px; border-radius: 3px; text-transform: uppercase;">${escapeHtml(item.category)}</span></td>
+                                </tr>
+                                <tr>
+                                  <td colspan="2" style="padding-top: 4px; font-size: 12px; color: #334155; line-height: 1.45;">${escapeHtml(item.explanation)}</td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+                      `).join('') : '<p style="font-size: 12px; color: #64748b; font-style: italic;">No targeted diagnostic codes logged for this assessment.</p>'}
+                    </td>
+                  </tr>
+
+                  ${unmatchedNotes.length > 0 ? `
+                  <tr>
+                    <td style="padding: 10px 32px;">
+                      <h3 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px;">Additional Comments</h3>
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #fcfcfc; border: 1px dashed #cbd5e1; border-radius: 5px; padding: 12px;">
+                        <tr>
+                          <td style="font-size: 12px; color: #334155; line-height: 1.5;">
+                            <ul style="margin: 0; padding-left: 18px;">
+                              ${unmatchedNotes.map(n => `<li style="margin-bottom: 4px;">${escapeHtml(n)}</li>`).join('')}
+                            </ul>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  ` : ''}
+
+                  <tr>
+                    <td style="padding: 12px 32px 24px 32px;">
+                      <h3 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px;">Official Recommendations for Progression</h3>
+                      ${recs.map((r, i) => `
+                        <p style="margin: 0 0 8px 0; font-size: 12px; color: #334155; line-height: 1.45;">
+                          ${i + 1}. <strong>${escapeHtml(r.title)}:</strong> ${escapeHtml(r.text)}
+                        </p>
+                      `).join('')}
+                    </td>
+                  </tr>
+
+                  <!-- FOOTER WITH BASE64 LOGO, PHONE NUMBERS & ADDRESS -->
+                  <tr>
+                    <td style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 22px 32px; text-align: center;">
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                        <tr>
+                          <td align="center" style="padding-bottom: 12px;">
+                            <!-- ========================================== -->
+                            <!-- EDIT LOGO HERE                             -->
+                            <!-- Paste your Base64 string inside the src="" -->
+                            <!-- ========================================== -->
+                            <img src="data:image/png;base64,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" alt="Compass Logo" width="140" style="display: block; margin: 0 auto; border: 0; outline: none;" />
+                          </td>
+                        </tr>
+                        <tr>
+                          <!-- ========================================== -->
+                          <!-- EDIT PHONE NUMBERS HERE                    -->
+                          <!-- (Using &zwnj; to prevent auto-hyperlinking)-->
+                          <!-- ========================================== -->
+                          <td align="center" style="font-size: 12px; color: #64748b; font-weight: 500; padding-bottom: 4px;">
+                            Contact: <span style="color:#64748b; text-decoration:none;">+880&zwnj; 1322-852901</span> &nbsp;|&nbsp; <span style="color:#64748b; text-decoration:none;">+880&zwnj; 1842-871284</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <!-- ========================================== -->
+                          <!-- EDIT ADDRESS HERE                          -->
+                          <!-- ========================================== -->
+                          <td align="center" style="font-size: 11.5px; color: #94a3b8; font-weight: 400; line-height: 1.4;">
+  Address: <a href="https://maps.app.goo.gl/s1BwrZzaNqaqk2hF8" target="_blank" style="color: #64748b; text-decoration: underline;">House # 58/B, Road # 21, Kemal Ataturk Avenue (Opposite Barcode Cafe), Banani, Dhaka 1213</a>
+
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
+      `;
+    }
+
+    /* EMAIL DISPATCH LOGIC & STATE HANDLING (SEND / SENT / RESEND) */
+    function triggerSendEmail(index) {
+      const key = getUserLogsKey();
+      const logs = JSON.parse(localStorage.getItem(key) || '[]');
+      const record = logs[index];
+      if (!record) return;
+
+      if (!record.email || !record.email.includes('@')) {
+        const inputMail = prompt(`No valid email found for ${record.candidate}. Enter recipient email:`);
+        if (inputMail && inputMail.includes('@')) {
+          record.email = inputMail.trim();
+          logs[index].email = record.email;
+          localStorage.setItem(key, JSON.stringify(logs));
+        } else {
+          alert("Delivery cancelled: A valid email address is required.");
+          return;
+        }
+      }
+
+      const btn = document.getElementById(`email-btn-${index}`);
+      if (btn) {
+        btn.className = 'btn-email-status state-sending';
+        btn.textContent = 'Sending...';
+      }
+
+      /* GOOGLE APPS SCRIPT WEB APP URL */
+      const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzmqdPYr-juaIBmfu1rs8vmjENq_3lrp08V6noZG1BfvLswvlUwbTiqOOgO2XW9j31Lyw/exec";
+
+      const emailHtmlBody = buildCandidateEmailHtml(record);
+
+      fetch(GAS_WEBAPP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          candidateName: record.candidate,
+          candidateEmail: record.email,
+          bandScore: record.band,
+          testTitle: record.testTitle,
+          emailHtml: emailHtmlBody
+        })
+      })
+      .then(() => {
+        record.emailStatus = 'sent';
+        logs[index] = record;
+        localStorage.setItem(key, JSON.stringify(logs));
+        renderLogs();
+        alert(`✓ E-mail delivered successfully to ${record.email}`);
+      })
+      .catch((err) => {
+        console.error("Email send error:", err);
+        record.emailStatus = 'resend';
+        logs[index] = record;
+        localStorage.setItem(key, JSON.stringify(logs));
+        renderLogs();
+        alert("E-mail transmission failed. Tap 'Resend' to try again.");
+      });
+    }
+
+    /* COMPREHENSIVE PDF REPORT GENERATION ENGINE (DYNAMIC PROGRESSION ROADMAP) */
+    function normalizeTextForMatch(str) {
+      return (str || '')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/[•\-\*·]/g, ' ')
+        .replace(/["'""'']/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
+    }
+
+    function generateCandidatePDF(index) {
+      const key = getUserLogsKey();
+      const logs = JSON.parse(localStorage.getItem(key) || '[]');
+      const record = logs[index];
+      if (!record) return;
+
+      const repository = getFeedbackRepository();
+      const noteHtml = record.notes || '';
+
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = noteHtml;
+      
+      tempDiv.querySelectorAll('div, p, br, li').forEach(el => {
+        el.before('\n');
+      });
+
+      const rawText = tempDiv.innerText || tempDiv.textContent || '';
+      const lines = rawText.split('\n')
+        .map(l => l.replace(/^[•\-\*·\s]+/, '').trim())
+        .filter(Boolean);
+
+      const matchedFeedback = [];
+      const unmatchedNotes = [];
+
+      lines.forEach(line => {
+        const normLine = normalizeTextForMatch(line);
+        if (!normLine) return;
+
+        const found = repository.find(item => {
+          const normCode = normalizeTextForMatch(item.code);
+          return normLine === normCode || normLine.includes(normCode) || normCode.includes(normLine);
+        });
+
+        if (found) {
+          if (!matchedFeedback.some(m => m.code === found.code)) {
+            matchedFeedback.push(found);
+          }
+        } else {
+          unmatchedNotes.push(line);
+        }
+      });
+
+      if (matchedFeedback.length === 0 && lines.length > 0) {
+        const entireNoteNorm = normalizeTextForMatch(rawText);
+        repository.forEach(item => {
+          const normCode = normalizeTextForMatch(item.code);
+          if (entireNoteNorm.includes(normCode)) {
+            if (!matchedFeedback.some(m => m.code === item.code)) {
+              matchedFeedback.push(item);
+            }
+          }
+        });
+      }
+
+      const recs = getBandRecommendations(record.band);
+
+      const printDoc = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title></title>
+          <style>
+            @page {
+              size: A4 portrait;
+              margin: 0;
+            }
+            * {
+              box-sizing: border-box;
+              margin: 0;
+              padding: 0;
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            }
+            body {
+              color: #1e293b;
+              background: #fff;
+              font-size: 11pt;
+              line-height: 1.45;
+              padding: 18mm 16mm 18mm 16mm;
+            }
+            .header-banner {
+              border-bottom: 3px solid #d32f2f;
+              padding-bottom: 12px;
+              margin-bottom: 16px;
+            }
+            .header-title h1 {
+              font-size: 19pt;
+              font-weight: 800;
+              color: #0f172a;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            .info-grid {
+              display: grid;
+              grid-template-columns: 2fr 1fr;
+              gap: 14px;
+              background: #f8fafc;
+              border: 1px solid #e2e8f0;
+              border-radius: 6px;
+              padding: 12px 14px;
+              margin-bottom: 16px;
+            }
+            .info-col p {
+              font-size: 9.5pt;
+              margin-bottom: 4px;
+              color: #334155;
+            }
+            .info-col strong {
+              color: #0f172a;
+              font-weight: 700;
+            }
+            .score-box {
+              background: #fff;
+              border: 2px solid #d32f2f;
+              border-radius: 6px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              padding: 6px;
+            }
+            .score-box .score-label {
+              font-size: 8pt;
+              font-weight: 800;
+              color: #64748b;
+              text-transform: uppercase;
+            }
+            .score-box .score-num {
+              font-size: 24pt;
+              font-weight: 900;
+              color: #d32f2f;
+              line-height: 1;
+              margin-top: 2px;
+            }
+            .section-header {
+              font-size: 11pt;
+              font-weight: 800;
+              color: #0f172a;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              border-bottom: 1.5px solid #cbd5e1;
+              padding-bottom: 4px;
+              margin: 16px 0 10px 0;
+            }
+            .feedback-card {
+              background: #fff;
+              border: 1px solid #e2e8f0;
+              border-left: 4px solid #d32f2f;
+              border-radius: 4px;
+              padding: 9px 12px;
+              margin-bottom: 8px;
+              page-break-inside: avoid;
+            }
+            .feedback-card-head {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 4px;
+            }
+            .feedback-code {
+              font-size: 10pt;
+              font-weight: 700;
+              color: #0f172a;
+            }
+            .feedback-category {
+              font-size: 7.5pt;
+              font-weight: 700;
+              text-transform: uppercase;
+              background: #f1f5f9;
+              color: #475569;
+              padding: 2px 6px;
+              border-radius: 3px;
+              border: 1px solid #e2e8f0;
+            }
+            .feedback-explanation {
+              font-size: 9.5pt;
+              color: #334155;
+              line-height: 1.4;
+            }
+            .notes-box {
+              background: #fcfcfc;
+              border: 1px dashed #cbd5e1;
+              border-radius: 5px;
+              padding: 10px 12px;
+              font-size: 9.5pt;
+              color: #334155;
+              line-height: 1.5;
+              margin-bottom: 14px;
+            }
+            .notes-box li {
+              margin-left: 18px;
+              margin-bottom: 3px;
+            }
+            .criteria-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 8px;
+              margin-bottom: 16px;
+              font-size: 8.5pt;
+            }
+            .criteria-table th, .criteria-table td {
+              border: 1px solid #e2e8f0;
+              padding: 6px 8px;
+              text-align: left;
+              vertical-align: top;
+            }
+            .criteria-table th {
+              background: #f8fafc;
+              font-weight: 700;
+              color: #334155;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header-banner">
+            <div class="header-title">
+              <h1>IELTS Speaking Feedback</h1>
+            </div>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-col">
+              <p><strong>Candidate Name:</strong> ${escapeHtml(record.candidate)}</p>
+              <p><strong>Test Delivered:</strong> ${escapeHtml(record.testTitle)}</p>
+              <p><strong>Assessment Date:</strong> ${escapeHtml(record.date)}</p>
+              <p><strong>Assessing Examiner:</strong> ${escapeHtml(currentUser || DEFAULT_EXAMINER)}</p>
+            </div>
+            <div class="score-box">
+              <span class="score-label">Awarded Score</span>
+              <span class="score-num">${escapeHtml(record.band)}</span>
+            </div>
+          </div>
+
+          <div class="section-header">Assessment Criteria Overview</div>
+          <table class="criteria-table">
+            <thead>
+              <tr>
+                <th style="width:25%;">Fluency & Coherence</th>
+                <th style="width:25%;">Lexical Resource</th>
+                <th style="width:25%;">Grammatical Accuracy</th>
+                <th style="width:25%;">Pronunciation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Speech continuity, logical sequencing, relevant extension, and natural linking devices.</td>
+                <td>Range and precision of vocabulary, idiomatic collocations, and effective paraphrasing.</td>
+                <td>Variety of complex grammatical structures, clause control, and grammatical accuracy.</td>
+                <td>Intelligibility, individual phonemic clarity, word stress, and rhythm/intonation.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="section-header">Targeted Examiner Feedback</div>
+          ${matchedFeedback.length > 0 ? matchedFeedback.map(item => `
+            <div class="feedback-card">
+              <div class="feedback-card-head">
+                <span class="feedback-code">${escapeHtml(item.code)}</span>
+                <span class="feedback-category">${escapeHtml(item.category)}</span>
+              </div>
+              <div class="feedback-explanation">${escapeHtml(item.explanation)}</div>
+            </div>
+          `).join('') : '<p style="font-size: 9.5pt; color: #64748b; font-style: italic; margin-bottom: 8px;">No targeted diagnostic codes logged for this assessment.</p>'}
+
+          ${unmatchedNotes.length > 0 ? `
+            <div class="section-header">Additional Comments</div>
+            <div class="notes-box">
+              <ul>
+                ${unmatchedNotes.map(n => `<li>${escapeHtml(n)}</li>`).join('')}
+              </ul>
+            </div>
+          ` : ''}
+
+          <div class="section-header">Official Recommendations for Progression</div>
+          <div style="font-size: 9pt; color: #334155; line-height: 1.5; margin-bottom: 12px;">
+            ${recs.map((r, i) => `${i + 1}. <strong>${escapeHtml(r.title)}:</strong> ${escapeHtml(r.text)}`).join('<br><br>')}
+          </div>
+        </body>
+        </html>
+      `;
+
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'fixed';
+      iframe.style.right = '0';
+      iframe.style.bottom = '0';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = '0';
+      document.body.appendChild(iframe);
+
+      const frameDoc = iframe.contentWindow.document;
+      frameDoc.open();
+      frameDoc.write(printDoc);
+      frameDoc.close();
+
+      setTimeout(() => {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        setTimeout(() => document.body.removeChild(iframe), 1500);
+      }, 350);
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    window.onload = function() {
+      initUserSystem();
+    };
+  </script>
+</body>
+</html>
